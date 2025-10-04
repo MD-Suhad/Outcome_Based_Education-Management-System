@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: Api-Gateway
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  profiles:
+    active: dev
+server:
+  port: 8080
+ribbon:
+  ReadTimeout: 6000000
+  connection-timeout: 30000
+  eureka:
+    enabled: true
+#zuul:
+#  ribbon:
+#    eager-load:
+#      enabled: true
+  semaphore:
+    max-semaphores: 500
+  sensitive-headers:
+    - Authorization,Cookie,Set-Cookie
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  routes:
+    obe-auth-service: /api/v1/auth/**
+  host:
+    connect-timeout-millis: 600000
+  #    In order to hide service route from external access, we just add private to the url so only services can access those routes
+  ignored-patterns: /**/private/**
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
+
+
