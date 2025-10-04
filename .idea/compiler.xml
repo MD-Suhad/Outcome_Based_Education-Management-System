@@ -8,17 +8,22 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="CORE" />
-        <module name="obe-auth-service" />
         <module name="api" />
+        <module name="obe-auth-service" />
         <module name="objectbasedoutcome" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="obe-auth-service (1)" target="17" />
+      <module name="obe-auth-service (2)" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="CORE" options="-parameters" />
       <module name="api" options="-parameters" />
       <module name="obe-auth-service" options="-parameters" />
+      <module name="obe-auth-service (1)" options="-parameters" />
       <module name="objectbasedoutcome" options="-parameters" />
     </option>
   </component>
