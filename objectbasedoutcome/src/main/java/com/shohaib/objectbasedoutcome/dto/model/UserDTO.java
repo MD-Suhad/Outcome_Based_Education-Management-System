@@ -33,5 +33,6 @@ public class UserDTO {
     private String address;
     private boolean emailVerified;
     private String ipAddress;
+    private String newIpAddress;
     private List<UserPermissionDTO> userPermissionDTOList;
 }
