@@ -11,9 +11,8 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class UserPermissionDTO {
+public class RoleEmployeeDTO {
     private Long id;
     private Long userId;
-    private Long permissionId;
-    private String userName;
+    private Long employeeId;
 }
