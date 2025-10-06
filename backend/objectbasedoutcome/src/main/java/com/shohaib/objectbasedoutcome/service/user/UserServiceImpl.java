@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public String store(UserDTO userDTO) throws  UserConflictException {
+    public String store(UserDTO userDTO) throws UserNotFoundException, UserConflictException {
         Random rnd = new Random();
         int number = rnd.nextInt();
         Optional<User> foundedUser = userRepository.findByUsername(userDTO.getUsername());

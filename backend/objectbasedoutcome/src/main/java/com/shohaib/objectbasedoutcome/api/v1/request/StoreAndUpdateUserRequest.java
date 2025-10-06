@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class StoreAndUpdateUserRequest {
+    private String name;
     private String email;
     private String firstName;
     private String lastName;
