@@ -27,9 +27,9 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.shohaib</groupId>
-			<artifactId>core</artifactId>
-			<version>1.0.0</version>
+			<groupId>org.shohaib</groupId>
+			<artifactId>CORE</artifactId>
+			<version>1.0.4</version>
 		</dependency>
 
 
