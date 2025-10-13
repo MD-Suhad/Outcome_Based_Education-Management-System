@@ -8,7 +8,7 @@ import com.shohaib.core.feign.hystrix.AuthServiceFallbackFactory;
 import com.shohaib.core.api.response.Response;
 
 
-@FeignClient(value = "ula-auth-service", fallbackFactory = AuthServiceFallbackFactory.class)
+@FeignClient(value = "obe-auth-service", fallbackFactory = AuthServiceFallbackFactory.class)
 public interface AuthServiceFeignClient
 {
     @PostMapping("/private/user")

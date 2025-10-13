@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
 @Aspect
-@EnableFeignClients("org.ula.core.feign")
+@EnableFeignClients("com.shohaib.core.feign")
 @Component
 public class Authentication
 {

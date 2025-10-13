@@ -26,8 +26,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-  routes:
-    obe-auth-service:/api/v1/auth/**
+      routes:
+       obe-auth-service:/api/v1/auth/**
 
   host:
     connect-timeout-millis: 600000
