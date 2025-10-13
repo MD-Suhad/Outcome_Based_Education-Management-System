@@ -1,5 +1,6 @@
 package com.shohaib.objectbasedoutcome.domain.model;
 
+import com.shohaib.core.domain.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

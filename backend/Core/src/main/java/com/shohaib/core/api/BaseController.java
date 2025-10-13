@@ -1,6 +1,7 @@
 package com.shohaib.core.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.Sanitizer;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class BaseController
 
     protected String sanitize(String unsafeString)
     {
-        return sanitizer.sanitize(unsafeString);
+        return (String) sanitizer.sanitize(unsafeString);
     }
 
     protected ArrayList<String> errors(String... message)

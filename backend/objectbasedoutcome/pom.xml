@@ -27,10 +27,11 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.shohaib</groupId>
+			<groupId>com.shohaib</groupId>
 			<artifactId>CORE</artifactId>
 			<version>1.0.4</version>
 		</dependency>
+
 
 
 		<!-- Web Starter -->
@@ -84,6 +85,12 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-openfeign-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.17.2</version> <!-- or latest -->
+		</dependency>
+
 	</dependencies>
 
 	<!-- Spring Cloud BOM -->
