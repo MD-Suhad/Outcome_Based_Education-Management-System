@@ -11,9 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface UserPermissionRepository extends CrudRepository<Permission, Id> {
     @Query("select e from #{#entityName} e where e.title='USER'")
     Permission ROLE_USER();
-    @Query("select e from #{#entityName} e where e.title='USER'")
-    Permission ROLE_USER();
-    @Query("select e from #{#entityName} e where e.title='USER'")
-    Permission ROLE_USER();
+
 
 }
