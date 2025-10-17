@@ -16,7 +16,31 @@ public class JWTUtils {
 
         try{
             claims = JWT.parse().setSigningKey(this.secret).parseClaimsJws(token).getBody();
+        }catch(Exception e){
+            claims = null;
         }
+        return claims;
+    }
+    public String getUsername(String token){
+        String username;
+        try{
+            Claim  claims = this.getClaim(token);
+            username = claims.getSubject();
+        }catch (Exception e){
+            username = null;
+        }
+        return username;
+    }
+
+    public Object getRoles(String token){
+        Object roles;
+        try{
+            Claim claims = this.getClaims(token);
+            roles = claims.get("roles");
+        }catch (Exception e){
+            roles = null;
+        }
+        return roles;
     }
 
 
