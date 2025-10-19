@@ -1,86 +1,92 @@
 package com.shohaib.objectbasedoutcome.util;
 
-
-import com.auth0.jwt.interfaces.Claim;
-import com.shohaib.core.util.JWT;
-import lombok.Value;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.*;
+
 @Component
 public class JWTUtils {
-    @Value("github-secret")
+
+    @Value("${auth.token.secret}")
     private String secret;
 
-    private Claim getClass(String token){
-        Claim claims;
+    // You can define expiration here (e.g. 1 day)
+    private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 1 day
 
-        try{
-            claims = JWT.parse().setSigningKey(this.secret).parseClaimsJws(token).getBody();
-        }catch(Exception e){
-            claims = null;
+    // ✅ Get claims from token
+    private Claims getClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secret)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return null;
         }
-        return claims;
-    }
-    public String getUsername(String token){
-        String username;
-        try{
-            Claim  claims = this.getClaim(token);
-            username = claims.getSubject();
-        }catch (Exception e){
-            username = null;
-        }
-        return username;
     }
 
-    public Object getRoles(String token){
-        Object roles;
-        try{
-            Claim claims = this.getClaims(token);
-            roles = claims.get("roles");
-        }catch (Exception e){
-            roles = null;
-        }
-        return roles;
+    // ✅ Check if token is expired
+    private boolean isExpired(String token) {
+        Date expiration = getExpirationDate(token);
+        return expiration == null || expiration.before(new Date());
     }
 
-    public Date getExpirationDate(String token){
-        Date expiration;
-        try{
-            final Claim claims = this.getClaim(token);
-            expiration = claims.getExpiration();
-        }catch(Exception e){
-            expiration = null;
-        }
-        return expiration;
+    // ✅ Extract username from token
+    public String getUsername(String token) {
+        Claims claims = getClaims(token);
+        return (claims != null) ? claims.getSubject() : null;
     }
-    public boolean validateToken(String token, UserDetails userDetails){
-        final String username = getUsername(token);
-        return(username.equals(userDetails.getUsername()) && !isExpire(token));
+
+    // ✅ Extract roles from token
+    public Object getRoles(String token) {
+        Claims claims = getClaims(token);
+        return (claims != null) ? claims.get("roles") : null;
     }
-    public ArrayList<String> extractRoles(UserDetails userDetails){
-        ArrayList<String> roles = new ArrayList<>();
-        for(GrantedAuthority ga: userDetails.getAuthorities()){
+
+    // ✅ Extract expiration date
+    public Date getExpirationDate(String token) {
+        Claims claims = getClaims(token);
+        return (claims != null) ? claims.getExpiration() : null;
+    }
+
+    // ✅ Validate token
+    public boolean validateToken(String token, UserDetails userDetails) {
+        String username = getUsername(token);
+        return username != null && username.equals(userDetails.getUsername()) && !isExpired(token);
+    }
+
+    // ✅ Extract roles from UserDetails
+    public List<String> extractRoles(UserDetails userDetails) {
+        List<String> roles = new ArrayList<>();
+        for (GrantedAuthority ga : userDetails.getAuthorities()) {
             roles.add(ga.getAuthority());
         }
         return roles;
     }
+
+    // ✅ Generate JWT token
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<String, Object>();
-        claims.put("sub", userDetails.getUsername());
-        claims.put("created", new java.util.Date(System.currentTimeMillis()));
-        claims.put("roles", this.extractRoles(userDetails));
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", extractRoles(userDetails));
+        claims.put("created", new Date());
 
-
-        return Jwts.builder().setClaims(claims)
-                .setExpiration(new java.util.Date(System.currentTimeMillis()
-                        + SecurityConstants.EXPIRATION_TIME))
-                .signWith(io.jsonwebtoken.SignatureAlgorithm.HS512, this.secret).compact();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
     }
-
-
 }
