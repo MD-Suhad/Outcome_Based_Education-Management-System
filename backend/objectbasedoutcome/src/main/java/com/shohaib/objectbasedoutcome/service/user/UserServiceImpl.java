@@ -56,4 +56,16 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    @Override
+    public Optional<User> getByUsername(String username) throws UserNotFoundException{
+        Optional<User> user = userRepository.findByUsernameAndDeletedFalse(username);
+        if(user.isEmpty()){
+            throw new UserNotFoundException(
+                    String.format("User with given username: '%s' does not exist",username)
+            )
+        }else {
+            return user;
+        }
+    }
+
 }
