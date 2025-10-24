@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService{
         if(user.isEmpty()){
             throw new UserNotFoundException(
                     String.format("User with given username: '%s' does not exist",username)
-            )
+            );
         }else {
             return user;
         }
