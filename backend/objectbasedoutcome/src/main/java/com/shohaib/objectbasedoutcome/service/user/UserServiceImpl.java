@@ -68,4 +68,13 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    public Optional<User> getByUsernameAndPassword(String username, String password ) throws UserNotFoundException{
+
+        Optional<User> user = userRepository.findByUsernameAndDeletedFalse(username,password);
+        if(user.isEmpty()){
+            throw new UserNotFoundException(String.format("user with given username and password: '%s': '%d' does not exist ",username,password))
+        }
+
+    }
+
 }
