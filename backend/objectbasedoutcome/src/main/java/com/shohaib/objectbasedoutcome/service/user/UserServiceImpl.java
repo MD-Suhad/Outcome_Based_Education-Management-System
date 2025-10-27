@@ -67,14 +67,27 @@ public class UserServiceImpl implements UserService{
             return user;
         }
     }
-
+    @Override
     public Optional<User> getByUsernameAndPassword(String username, String password ) throws UserNotFoundException{
 
-        Optional<User> user = userRepository.findByUsernameAndDeletedFalse(username,password);
+        Optional<User> user = userRepository.findByUsernameAndPasswordAndDeletedFalse(username,password);
         if(user.isEmpty()){
-            throw new UserNotFoundException(String.format("user with given username and password: '%s': '%d' does not exist ",username,password))
+            throw new UserNotFoundException(String.format("user with given username and password: '%s': '%d' does not exist ",username,password));
+        }else {
+            return user;
         }
 
     }
+    @Override
+    public Optional<User> getByEmail(String  email) throws UserNotFoundException{
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isEmpty()){
+            throw  new UserNotFoundException(String.format("email not found", email));
+        }else{
+            return user;
+        }
+    }
+
+
 
 }
