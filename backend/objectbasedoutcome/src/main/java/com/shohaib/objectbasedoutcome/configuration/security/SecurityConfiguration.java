@@ -1,6 +1,7 @@
 package com.shohaib.objectbasedoutcome.configuration.security;
 
 import com.shohaib.objectbasedoutcome.service.user.UserDetailsServiceImplementation;
+import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,6 @@ public class SecurityConfiguration {
     @Autowired
     private UserDetailsServiceImplementation userDetailsService;
 
-    // ✅ Password encoder (BCrypt)
     @Bean
     public PasswordEncoder passwordEncoder() {
         Map<String, PasswordEncoder> encoders = new HashMap<>();
@@ -42,13 +42,11 @@ public class SecurityConfiguration {
         return passwordEncoder;
     }
 
-    // ✅ AuthenticationManager (modern way)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // ✅ JWT Filter Bean
     @Bean
     public JWTAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         JWTAuthenticationFilter filter = new JWTAuthenticationFilter();
@@ -56,12 +54,11 @@ public class SecurityConfiguration {
         return filter;
     }
 
-    // ✅ CORS configuration
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*"); // use addAllowedOriginPattern in Spring 6+
+        config.addAllowedOriginPattern("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
@@ -70,23 +67,21 @@ public class SecurityConfiguration {
         return source;
     }
 
-    // ✅ Main security filter chain
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JWTAuthenticationFilter jwtFilter) throws Exception {
         http
-                .cors().and()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-                .and()
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/public/**").permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore((Filter) jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
