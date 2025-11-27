@@ -15,14 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-@RequestMapping("/api/v1/auth")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
 
-    @PostMapping("/user-registrar")
+    @PostMapping("/registrar")
     public ResponseEntity<Object> userStore(@RequestBody @Validated StoreAndUpdateUserRequest request) {
         try {
             UserDTO userDTO = new UserDTO()
