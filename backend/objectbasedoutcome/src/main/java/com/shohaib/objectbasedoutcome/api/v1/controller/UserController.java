@@ -13,13 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
+@RequestMapping("/api/v1/auth")
 @Validated
 public class UserController {
 
     @Autowired
     private UserService userService;
-
 
     @PostMapping("/registrar")
     public ResponseEntity<Object> userStore(@RequestBody @Validated StoreAndUpdateUserRequest request) {
@@ -30,6 +31,9 @@ public class UserController {
                     .setLastName(sanitize(request.getLastName()))
                     .setPhoneNumber(sanitize(request.getPhoneNumber()))
                     .setAddress(sanitize(request.getAddress()));
+                    .setAddress(sanitize(request.getAddress()));
+                    .setAddress(sanitize(request.getAddress()));
+
             return ResponseEntity.ok(userService.store(userDTO));
 
         } catch (UserNotFoundException | UserConflictException e) {
@@ -39,6 +43,7 @@ public class UserController {
 
     private String sanitize(String input) {
         if (input == null) return null;
-        return input.trim().replaceAll("<[^>]*>", ""); // basic XSS prevention
+        return input.trim().replaceAll("<[^>]*>", "");
     }
 }
+
