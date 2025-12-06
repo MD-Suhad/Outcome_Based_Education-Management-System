@@ -31,8 +31,6 @@ public class UserController {
                     .setLastName(sanitize(request.getLastName()))
                     .setPhoneNumber(sanitize(request.getPhoneNumber()))
                     .setAddress(sanitize(request.getAddress()));
-                    .setAddress(sanitize(request.getAddress()));
-                    .setAddress(sanitize(request.getAddress()));
 
             return ResponseEntity.ok(userService.store(userDTO));
 
