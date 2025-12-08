@@ -4,7 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -33,7 +32,7 @@ public class ApiGatewayApplication
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**",config);
         return new CorsWebFilter(source);
-    }
+
 //    public CorsFilter corsFilter() {
 //        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 //        final CorsConfiguration config = new CorsConfiguration();
@@ -48,6 +47,6 @@ public class ApiGatewayApplication
 //        config.addAllowedMethod("DELETE");
 //        config.addAllowedMethod("PATCH");
 //        source.registerCorsConfiguration("/**", config);
-//        return new CorsFilter((CorsConfigurationSource) source);
-//    }
+//        return new CorsFilter(source);
+    }
 }

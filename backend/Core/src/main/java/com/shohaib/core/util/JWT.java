@@ -17,10 +17,4 @@ public class JWT
         return jwt.getSubject();
     }
 
-    public String getPassowrdUsername()
-    {
-        DecodedJWT jwt = com.auth0.jwt.JWT.decode(this.content);
-        return jwt.getSubject();
-    }
-
 }
