@@ -39,12 +39,13 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {
-        Map<String, PasswordEncoder> encoders = new HashMap<>();
-        encoders.put("bcrypt", new BCryptPasswordEncoder());
-        DelegatingPasswordEncoder passwordEncoder =
-                new DelegatingPasswordEncoder("bcrypt", encoders);
-        passwordEncoder.setDefaultPasswordEncoderForMatches(encoders.get("bcrypt"));
-        return passwordEncoder;
+//        Map<String, PasswordEncoder> encoders = new HashMap<>();
+//        encoders.put("bcrypt", new BCryptPasswordEncoder());
+//        DelegatingPasswordEncoder passwordEncoder =
+//                new DelegatingPasswordEncoder("bcrypt", encoders);
+//        passwordEncoder.setDefaultPasswordEncoderForMatches(encoders.get("bcrypt"));
+//        return passwordEncoder;
+        return new BCryptPasswordEncoder();
     }
 
 
@@ -68,33 +69,36 @@ public class SecurityConfiguration {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("Authorization");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("//**", config);
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JWTAuthenticationFilter jwtFilter) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
-                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/registrar", "/public/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore((Filter) jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
+//
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+////        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+////                .csrf(csrf -> csrf.disable())
+////                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+////                .logout(logout -> logout
+////                        .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
+////                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+////                )
+////                .authorizeHttpRequests(auth -> auth
+////                        .requestMatchers("/api/v1/auth/registrar", "/public/**").permitAll()
+////                        .anyRequest().authenticated()
+////                )
+////                .addFilterBefore((Filter) jwtFilter, UsernamePasswordAuthenticationFilter.class);
+////
+////        return http.build();
+////        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
+////                .cors(corsConfigurationSource() -> corsConfigurationSource().)
+////    }
 }
