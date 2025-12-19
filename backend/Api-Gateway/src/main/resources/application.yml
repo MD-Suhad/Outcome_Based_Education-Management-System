@@ -23,9 +23,15 @@ eureka:
     fetch-registry: true
 
 zuul:
- routes:
-  obe-auth-service:
-   path: /api/v1/auth/**
-  serviceId: obe-auth-service
-  sensitive-headers: Cookie,Set-Cookie,Authorization
-  ignored-patterns: /**/private/**
+  ribbon:
+    eager-load:
+      enabled: true
+  semaphore:
+    max-semaphores: 500
+  sensitive-headers:
+    - Authorization,Cookie,Set-Cookie
+  routes:
+   obe-auth-service: /api/v1/auth/**
+   serviceId: obe-auth-service
+   sensitive-headers: Cookie,Set-Cookie,Authorization
+   ignored-patterns: /**/private/**

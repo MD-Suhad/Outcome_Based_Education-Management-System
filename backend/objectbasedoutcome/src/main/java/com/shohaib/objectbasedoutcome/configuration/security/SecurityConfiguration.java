@@ -26,7 +26,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,23 +38,22 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {
-//        Map<String, PasswordEncoder> encoders = new HashMap<>();
-//        encoders.put("bcrypt", new BCryptPasswordEncoder());
-//        DelegatingPasswordEncoder passwordEncoder =
-//                new DelegatingPasswordEncoder("bcrypt", encoders);
-//        passwordEncoder.setDefaultPasswordEncoderForMatches(encoders.get("bcrypt"));
-//        return passwordEncoder;
-        return new BCryptPasswordEncoder();
+        Map<String, PasswordEncoder> encoders = new HashMap<>();
+        encoders.put("bcrypt", new BCryptPasswordEncoder());
+        DelegatingPasswordEncoder passwordEncoder =
+                new DelegatingPasswordEncoder("bcrypt", encoders);
+        passwordEncoder.setDefaultPasswordEncoderForMatches(encoders.get("bcrypt"));
+        return passwordEncoder;
     }
 
 
 
     @Bean
-    public AuthenticationManager authenticationManager(DataSource dataSource, PasswordEncoder passwordEncoder) throws Exception {
-        JdbcDaoImpl jdbcUserService = new JdbcDaoImpl();
-        jdbcUserService.setDataSource(dataSource);
+    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) throws Exception {
+//        JdbcDaoImpl jdbcUserService = new JdbcDaoImpl();
+//        jdbcUserService.setDataSource(dataSource);
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(jdbcUserService);
+        provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(provider);
     }
@@ -80,25 +78,25 @@ public class SecurityConfiguration {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-//
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-////        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-////                .csrf(csrf -> csrf.disable())
-////                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-////                .logout(logout -> logout
-////                        .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
-////                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-////                )
-////                .authorizeHttpRequests(auth -> auth
-////                        .requestMatchers("/api/v1/auth/registrar", "/public/**").permitAll()
-////                        .anyRequest().authenticated()
-////                )
-////                .addFilterBefore((Filter) jwtFilter, UsernamePasswordAuthenticationFilter.class);
-////
-////        return http.build();
-////        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
-////                .cors(corsConfigurationSource() -> corsConfigurationSource().)
-////    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/registrar", "/public/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore((Filter) jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
+                .cors(corsConfigurationSource() -> corsConfigurationSource().)
+    }
 }
