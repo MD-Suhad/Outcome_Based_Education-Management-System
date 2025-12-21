@@ -6,13 +6,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Component
 public class JWTUtils {
     @Value("github-secret")
     private String secret;
@@ -31,7 +32,7 @@ public class JWTUtils {
         return expiration.before(new Date(System.currentTimeMillis()));
     }
 
-    private String getUsername(String token){
+    public String getUsername(String token){
         String username;
         try{
             Claims claims = this.getClaims(token);

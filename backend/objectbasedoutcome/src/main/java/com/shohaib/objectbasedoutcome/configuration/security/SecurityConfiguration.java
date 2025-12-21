@@ -1,27 +1,19 @@
 package com.shohaib.objectbasedoutcome.configuration.security;
 
+import com.shohaib.objectbasedoutcome.filter.JWTAuthenticationFilter;
 import com.shohaib.objectbasedoutcome.service.user.UserDetailsServiceImplementation;
-import jakarta.servlet.Filter;
+import com.shohaib.objectbasedoutcome.util.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,10 +23,13 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration {
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+public class SecurityConfiguration extends WebSecurityConfiguration {
 
     @Autowired
     private UserDetailsServiceImplementation userDetailsService;
+    @Autowired
+    private JWTUtils jwtUtils;
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {
@@ -45,24 +40,23 @@ public class SecurityConfiguration {
         passwordEncoder.setDefaultPasswordEncoderForMatches(encoders.get("bcrypt"));
         return passwordEncoder;
     }
-
-
-
+    @Autowired
+    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder)
+            throws Exception {
+        authenticationManagerBuilder.userDetailsService(this.userDetailsService)
+                .passwordEncoder(this.getPasswordEncoder()).and().jdbcAuthentication();
+    }
     @Bean
-    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) throws Exception {
-//        JdbcDaoImpl jdbcUserService = new JdbcDaoImpl();
-//        jdbcUserService.setDataSource(dataSource);
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(provider);
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws {
+        return super.authenticationManagerBean
     }
 
     @Bean
-    public JWTAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
-        JWTAuthenticationFilter filter = new JWTAuthenticationFilter();
-        filter.setAuthenticationManager(authenticationManager);
-        return filter;
+    public JWTAuthenticationFilter jwtAuthenticationFilterBean() throws Exception{
+        JWTAuthenticationFilter authenticationTokenFilter = new JWTAuthenticationFilter(jwtUtils,userDetailsService);
+        authenticationTokenFilter.setAuthenticationManager(this.authenticationManagerBean());
+        return authenticationTokenFilter;
     }
 
     @Bean
@@ -79,24 +73,24 @@ public class SecurityConfiguration {
         return source;
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
-                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/registrar", "/public/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore((Filter) jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
-                .cors(corsConfigurationSource() -> corsConfigurationSource().)
-    }
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .logout(logout -> logout
+//                        .logoutRequestMatcher(new AntPathRequestMatcher(SecurityConstants.LOGOUT_URL))
+//                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+//                )
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/api/v1/auth/registrar", "/public/**").permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .addFilterBefore((Filter) jwtFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
+//                .cors(corsConfigurationSource() -> corsConfigurationSource().)
+//    }
 }
