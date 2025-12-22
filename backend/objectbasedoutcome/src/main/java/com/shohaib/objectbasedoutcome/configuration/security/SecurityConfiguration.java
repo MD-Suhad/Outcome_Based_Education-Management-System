@@ -49,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfiguration {
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws {
-        return super.authenticationManagerBean
+        return super.authenticationManagerBean();
     }
 
     @Bean
