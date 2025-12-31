@@ -42,6 +42,8 @@ public class UserServiceImpl implements UserService{
         }else {
             User user = new User()
                     .setUsername(userDTO.getFirstName().replace(" ","").toLowerCase() + userDTO.getLastName().replace(" "," ").toLowerCase() + String.format("%04d",number))
+                    .setFirstName(userDTO.getFirstName())
+                    .setLastName(userDTO.getLastName())
                     .setPassword(userDTO.getPassword())
                     .setEmail(userDTO.getEmail())
                     .setProfileImage("users/user-icon.png")

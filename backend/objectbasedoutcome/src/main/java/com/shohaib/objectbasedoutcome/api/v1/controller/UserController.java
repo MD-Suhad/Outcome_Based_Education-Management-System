@@ -29,6 +29,7 @@ public class UserController {
                     .setEmail(sanitize(request.getEmail()))
                     .setFirstName(sanitize(request.getFirstName()))
                     .setLastName(sanitize(request.getLastName()))
+                    .setPassword(sanitize(request.getPassword()))
                     .setPhoneNumber(sanitize(request.getPhoneNumber()))
                     .setAddress(sanitize(request.getAddress()));
 
