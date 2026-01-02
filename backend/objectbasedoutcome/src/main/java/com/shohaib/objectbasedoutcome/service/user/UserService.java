@@ -14,6 +14,7 @@ public interface UserService {
     List<UserDTO> index();
     UserDTO show(Long id)
             throws UserNotFoundException;
+    Optional<User> getById(Long id) throws UserException, UserNotFoundException;
 
     String store(UserDTO userDTO) throws UserNotFoundException, UserConflictException;
     Optional<User> getByUsername(String username) throws UsernameNotFoundException, UserNotFoundException;

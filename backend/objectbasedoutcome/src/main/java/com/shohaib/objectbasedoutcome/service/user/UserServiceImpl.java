@@ -6,6 +6,7 @@ import com.shohaib.objectbasedoutcome.domain.repository.UserPermissionRepository
 import com.shohaib.objectbasedoutcome.domain.repository.UserRepository;
 import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserConflictException;
+import com.shohaib.objectbasedoutcome.service.exception.handler.UserException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,16 @@ public class UserServiceImpl implements UserService{
     public UserDTO show(Long id) throws UserNotFoundException {
         User user = this.userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(String.format("User id not found ")));
         return null;
+    }
+
+    @Override
+    public Optional<User> getById(Long id) throws UserException, UserNotFoundException {
+        Optional<User> user = userRepository.findById(id);
+        if(user.isEmpty()){
+            throw new UserNotFoundException(String.format("User with id:",id));
+        }else {
+            return user;
+        }
     }
 
     @Override
