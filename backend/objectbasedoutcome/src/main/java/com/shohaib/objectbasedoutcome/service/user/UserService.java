@@ -17,6 +17,7 @@ public interface UserService {
 
     String store(UserDTO userDTO) throws UserNotFoundException, UserConflictException;
     Optional<User> getByUsername(String username) throws UsernameNotFoundException, UserNotFoundException;
+    List<User> getAll();
 
     Optional<User> getByUsernameAndPassword(String username, String password) throws UserNotFoundException;
 

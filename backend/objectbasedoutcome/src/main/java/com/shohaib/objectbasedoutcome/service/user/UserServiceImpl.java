@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDTO show(Long id) throws UserNotFoundException {
+        User user = this.userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(String.format("User id not found ")));
         return null;
     }
 
@@ -69,6 +70,12 @@ public class UserServiceImpl implements UserService{
             return user;
         }
     }
+
+    @Override
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
     @Override
     public Optional<User> getByUsernameAndPassword(String username, String password ) throws UserNotFoundException{
 
