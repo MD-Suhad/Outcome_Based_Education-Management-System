@@ -55,9 +55,5 @@ public class Employee extends BaseEntity {
 	private int numberOfBabies;
 	private boolean holdSalary;
 	private boolean holdSalaryIncrement;
-	private String holdSalaryDocuments;
-	private String holdSalaryComments;
-	private boolean retirement;
-	private String salaryId;
 
 }
