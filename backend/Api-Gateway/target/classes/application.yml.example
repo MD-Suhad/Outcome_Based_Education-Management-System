@@ -1,39 +1,29 @@
 spring:
   application:
-    name: Api-Gateway
+    name: api-gateway
+
+  profiles:
+    active: dev
+
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  profiles:
-    active: dev
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://OBE-AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+
 server:
-  port: 8088
-ribbon:
-  ReadTimeout: 6000000
-  connection-timeout: 30000
-  eureka:
-    enabled: true
-zuul:
-  ribbon:
-    eager-load:
-      enabled: true
-  semaphore:
-    max-semaphores: 500
-  sensitive-headers:
-    - Authorization,Cookie,Set-Cookie
+  port: 8080
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-  routes:
-    ula-auth-service: /api/v1/auth/**
-    ula-university-service: /api/v1/university/**
-    ula-faculty-service: /api/v1/faculty/**
-  host:
-    connect-timeout-millis: 60000
-  #    In order to hide service route from external access, we just add private to the url so only services can access those routes
-  ignored-patterns: /**/private/**
-  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
-
-
+    register-with-eureka: true
+    fetch-registry: true
