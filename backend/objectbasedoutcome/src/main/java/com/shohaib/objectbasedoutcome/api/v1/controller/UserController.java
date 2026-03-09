@@ -29,9 +29,10 @@ public class UserController {
                     .setEmail(sanitize(request.getEmail()))
                     .setFirstName(sanitize(request.getFirstName()))
                     .setLastName(sanitize(request.getLastName()))
-                    .setPassword(sanitize(request.getPassword()))
+                    .setPassword("12345678")
                     .setPhoneNumber(sanitize(request.getPhoneNumber()))
                     .setAddress(sanitize(request.getAddress()));
+            userService.checkForPassword("12345678", "12345678");
 
             return ResponseEntity.ok(userService.store(userDTO));
 

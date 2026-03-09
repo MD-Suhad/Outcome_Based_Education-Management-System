@@ -23,6 +23,7 @@ public interface UserService {
     Optional<User> getByUsernameAndPassword(String username, String password) throws UserNotFoundException;
 
     Optional<User> getByEmail(String email) throws UserException, UserNotFoundException;
+    void checkForPassword(String password, String confirmPassword) throws UserNotFoundException;
 
 
 }

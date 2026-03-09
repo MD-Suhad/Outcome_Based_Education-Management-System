@@ -9,6 +9,7 @@ import com.shohaib.objectbasedoutcome.service.exception.handler.UserConflictExce
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -23,6 +24,8 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
     @Autowired
     private UserPermissionRepository userPermissionRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Override
     public List<UserDTO> index() {
         return null;
@@ -49,6 +52,9 @@ public class UserServiceImpl implements UserService{
         Random rnd = new Random();
         int number = rnd.nextInt();
         Optional<User> foundedUser = userRepository.findByUsername(userDTO.getUsername());
+        if(foundedUser == null){
+            throw new UserNotFoundException("Founded User Not Found");
+        }
         if(foundedUser.isPresent()){
             throw new UserConflictException(String.format("User with username: '%s' already exists",userDTO.getUsername()));
         }else {
@@ -56,7 +62,7 @@ public class UserServiceImpl implements UserService{
                     .setUsername(userDTO.getFirstName().replace(" ","").toLowerCase() + userDTO.getLastName().replace(" "," ").toLowerCase() + String.format("%04d",number))
                     .setFirstName(userDTO.getFirstName())
                     .setLastName(userDTO.getLastName())
-                    .setPassword(userDTO.getPassword())
+                    .setPassword(passwordEncoder.encode(userDTO.getPassword())).setEmail(userDTO.getEmail())
                     .setEmail(userDTO.getEmail())
                     .setProfileImage("users/user-icon.png")
                     .setPhoneNumber(userDTO.getPhoneNumber())
@@ -108,6 +114,13 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    @Override
+    public void checkForPassword(String password, String confirmPassword) throws UserNotFoundException {
+        if(!password.equals(confirmPassword)){
+            throw new UserNotFoundException("password don't match");
+        }
+
+    }
 
 
 }

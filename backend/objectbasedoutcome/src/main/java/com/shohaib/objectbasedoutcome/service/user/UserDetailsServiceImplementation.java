@@ -4,6 +4,7 @@ import com.shohaib.objectbasedoutcome.domain.model.User;
 import com.shohaib.objectbasedoutcome.domain.model.UserPermission;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class UserDetailsServiceImplementation implements UserDetailsService {
 
     @Autowired
+    @Lazy
     UserServiceImpl userService;
 
     @Override

@@ -68,7 +68,6 @@ public class SecurityConfiguration  {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity httpSecurity,
-            JWTAuthenticationFilter authenticationFilter,
             JWTAuthenticationFilter jwtAuthenticationFilter) throws Exception{
         httpSecurity
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
