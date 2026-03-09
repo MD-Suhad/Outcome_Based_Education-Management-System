@@ -31,8 +31,6 @@ import java.util.Map;
 public class SecurityConfiguration  {
     private final UserDetailsServiceImplementation userDetailsService;
     private final JWTUtils jwtUtils;
-    private final DataSource dataSource;
-
     @Bean
     public PasswordEncoder passwordEncoder(){
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
