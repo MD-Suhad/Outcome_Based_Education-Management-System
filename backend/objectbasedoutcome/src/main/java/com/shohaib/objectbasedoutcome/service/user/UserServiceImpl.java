@@ -8,6 +8,8 @@ import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserConflictException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.StreamSupport;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService{
 
     @Autowired
@@ -28,7 +33,20 @@ public class UserServiceImpl implements UserService{
     private PasswordEncoder passwordEncoder;
     @Override
     public List<UserDTO> index() {
-        return null;
+        Iterable<User> users = userRepository.findAll();
+
+        return StreamSupport.stream(users.spliterator(), false)
+                .map(user -> new UserDTO()
+                        .setId(user.getId())
+                        .setUsername(user.getUsername())
+                        .setEmail(user.getEmail())
+                        .setFirstName(user.getFirstName())
+                        .setLastName(user.getLastName())
+                        .setProfileImage(user.getProfileImage())
+                        .setPhoneNumber(user.getPhoneNumber())
+                        .setAddress(user.getAddress())
+                )
+                .toList();
     }
 
     @Override
@@ -52,28 +70,31 @@ public class UserServiceImpl implements UserService{
         Random rnd = new Random();
         int number = rnd.nextInt();
         Optional<User> foundedUser = userRepository.findByUsername(userDTO.getUsername());
-        if(foundedUser == null){
-            throw new UserNotFoundException("Founded User Not Found");
-        }
-        if(foundedUser.isPresent()){
-            throw new UserConflictException(String.format("User with username: '%s' already exists",userDTO.getUsername()));
-        }else {
-            User user = new User()
-                    .setUsername(userDTO.getFirstName().replace(" ","").toLowerCase() + userDTO.getLastName().replace(" "," ").toLowerCase() + String.format("%04d",number))
-                    .setFirstName(userDTO.getFirstName())
-                    .setLastName(userDTO.getLastName())
-                    .setPassword(passwordEncoder.encode(userDTO.getPassword())).setEmail(userDTO.getEmail())
-                    .setEmail(userDTO.getEmail())
-                    .setProfileImage("users/user-icon.png")
-                    .setPhoneNumber(userDTO.getPhoneNumber())
-                    .setAddress(userDTO.getAddress());
-            this.userRepository.save(user);
-            user.setUserPermissions(new HashSet<>());
-            user.getUserPermissions()
-                    .add(new UserPermission(null,user,userPermissionRepository.ROLE_USER()));
-            userRepository.save(user);
-            return "User Registration Successfully";
-        }
+            if (foundedUser.isPresent()) {
+                throw new UserConflictException(String.format("User with username: '%s' already exists", userDTO.getUsername()));
+            } else {
+                foundedUser = this.userRepository.findByEmail(userDTO.getEmail());
+                if(foundedUser.isPresent()){
+                    throw new UserConflictException("User with email: '%s' already exit");
+                }else{
+                    User user = new User()
+                            .setUsername(userDTO.getFirstName().replace(" ", "").toLowerCase() + userDTO.getLastName().replace(" ", " ").toLowerCase() + String.format("%04d", number))
+                            .setFirstName(userDTO.getFirstName())
+                            .setLastName(userDTO.getLastName())
+                            .setPassword(passwordEncoder.encode(userDTO.getPassword())).setEmail(userDTO.getEmail())
+                            .setEmail(userDTO.getEmail())
+                            .setProfileImage("users/user-icon.png")
+                            .setPhoneNumber(userDTO.getPhoneNumber())
+                            .setAddress(userDTO.getAddress());
+                    this.userRepository.save(user);
+                    user.setUserPermissions(new HashSet<>());
+                    user.getUserPermissions()
+                            .add(new UserPermission(null, user, userPermissionRepository.ROLE_USER()));
+                    userRepository.save(user);
+                    return "User Registration Successfully";
+                }
+
+            }
     }
 
     @Override

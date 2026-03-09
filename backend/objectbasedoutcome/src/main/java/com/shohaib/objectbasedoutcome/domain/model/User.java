@@ -53,8 +53,6 @@ public class User extends BaseEntity
 
     @Column(columnDefinition = "VARCHAR(128)")
     private String ipAddress;
-    private String ipNewAddress;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<UserPermission> userPermissions;
 
