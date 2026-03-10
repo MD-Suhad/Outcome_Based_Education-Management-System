@@ -37,7 +37,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             String pureToken = authToken.startsWith("Bearer ")
                     ? authToken.substring(7)
                     :authToken;
-            System.out.println("Checking pure token:  "+pureToken);
+            System.out.println("Checking pure token:this :  "+pureToken);
         }
         if((username != null) && (SecurityContextHolder.getContext().getAuthentication() == null)){
 

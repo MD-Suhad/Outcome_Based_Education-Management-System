@@ -3,11 +3,13 @@ import com.shohaib.objectbasedoutcome.configuration.security.SecurityConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class JWTUtils {
     @Value("github-secret")
     private String secret;
+    private static final String SECRET = "my-very-strong-secret-key-which-is-at-least-32-chars";
 
     private Claims getClaims(String token){
         Claims claims;
@@ -79,14 +82,17 @@ public class JWTUtils {
     }
 
     public  String generateToken(UserDetails userDetails){
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", userDetails.getUsername());
         claims.put("created",new Date(System.currentTimeMillis()));
         claims.put("roles",this.extractRoles(userDetails));
-
-        return Jwts.builder().setClaims(claims)
-                .setExpiration(new Date(System.currentTimeMillis()
-                + SecurityConstants.EXPIRATION_TIME)).signWith(SignatureAlgorithm.ES512, this.secret).compact();
+        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        return Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
     }
 
 }
