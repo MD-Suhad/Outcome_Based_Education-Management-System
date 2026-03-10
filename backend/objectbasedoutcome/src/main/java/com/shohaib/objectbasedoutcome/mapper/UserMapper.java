@@ -14,7 +14,8 @@ public class UserMapper {
                 .setId(user.getId())
                 .setEmail(user.getEmail())
                 .setAddress(user.getAddress())
-                .setPassword(user.getPassword());
+                .setPassword(user.getPassword())
+                .setUsername(user.getUsername());
 
     }
     public static List<UserDTO> map (List<User>users){

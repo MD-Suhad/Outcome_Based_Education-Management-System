@@ -35,10 +35,11 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
         }
         if(user.isPresent()){
             ArrayList<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-            for(UserPermission userPermission: user.get().getUserPermissions()){
-
-            }
+//            for(UserPermission userPermission: user.get().getUserPermissions()){
+//
+//            }
+            return new org.springframework.security.core.userdetails.User(user.get().getUsername(),user.get().getPassword(),grantedAuthorities);
         }
-        return new org.springframework.security.core.userdetails.User(user.get().getUsername(),user.get().getPassword(),null);
+        return null;
     }
 }

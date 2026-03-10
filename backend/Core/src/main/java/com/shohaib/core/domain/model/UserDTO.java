@@ -1,5 +1,6 @@
 package com.shohaib.core.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,5 +16,14 @@ public class UserDTO
 {
     private Long id;
     private String username;
-    private ArrayList<String> roles;
+    @JsonIgnore
+    private String password;
+    private String email;
+    private String profileImage;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private String address;
+    @JsonIgnore
+    private String termsAndConditions;
 }

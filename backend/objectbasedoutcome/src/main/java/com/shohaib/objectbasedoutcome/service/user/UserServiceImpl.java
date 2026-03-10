@@ -1,23 +1,30 @@
 package com.shohaib.objectbasedoutcome.service.user;
 
+import com.shohaib.core.util.JWTUtil;
+import com.shohaib.objectbasedoutcome.api.v1.request.StoreAndUpdateUserRequest;
 import com.shohaib.objectbasedoutcome.domain.model.User;
 import com.shohaib.objectbasedoutcome.domain.model.UserPermission;
 import com.shohaib.objectbasedoutcome.domain.repository.UserPermissionRepository;
 import com.shohaib.objectbasedoutcome.domain.repository.UserRepository;
 import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
+import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
+import com.shohaib.objectbasedoutcome.mapper.UserMapper;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserConflictException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
+import com.shohaib.objectbasedoutcome.util.JWTUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -31,6 +38,13 @@ public class UserServiceImpl implements UserService{
     private UserPermissionRepository userPermissionRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserDetailsServiceImplementation userService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JWTUtils jwt;
+
     @Override
     public List<UserDTO> index() {
         Iterable<User> users = userRepository.findAll();
@@ -51,8 +65,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDTO show(Long id) throws UserNotFoundException {
-        User user = (User) this.userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(String.format("User id not found ")));
-        return null;
+        User user =  this.userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(String.format("User id not found ")));
+        return UserMapper.map(user);
     }
 
     @Override
@@ -71,7 +85,7 @@ public class UserServiceImpl implements UserService{
         int number = rnd.nextInt();
         Optional<User> foundedUser = userRepository.findByUsername(userDTO.getUsername());
             if (foundedUser.isPresent()) {
-                throw new UserConflictException(String.format("User with username: '%s' already exists", userDTO.getUsername()));
+                throw new UserNotFoundException(String.format("User with username: '%s' already exists", userDTO.getUsername()));
             } else {
                 foundedUser = this.userRepository.findByEmail(userDTO.getEmail());
                 if(foundedUser.isPresent()){
@@ -141,6 +155,24 @@ public class UserServiceImpl implements UserService{
             throw new UserNotFoundException("password don't match");
         }
 
+    }
+
+    @Override
+    public HashMap<String, Object> login(UserDTO userDTO) throws UserException, UserNotFoundException {
+        User user = this.userRepository.findByUsername(userDTO.getUsername()).orElseThrow(() -> new UserNotFoundException("user not Found"));
+//        if(!passwordEncoder.matches(storeAndUpdateUserRequests.getPassword(),user.getPassword())){
+//            throw new UserException("Invalid Password");
+//        }
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDTO.getUsername(),userDTO.getPassword());
+        UserDetails userDetails = this.userService.loadUserByUsername(userDTO.getUsername());
+        Authentication authentication = this.authenticationManager.authenticate(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        this.userRepository.save(user);
+        String userToken = jwt.generateToken(userDetails);
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("token", userToken);
+        System.out.println("-----token------ "+token);
+        return data;
     }
 
 

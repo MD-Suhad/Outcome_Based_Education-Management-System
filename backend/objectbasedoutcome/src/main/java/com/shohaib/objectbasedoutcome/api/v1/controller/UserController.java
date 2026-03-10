@@ -8,10 +8,7 @@ import com.shohaib.objectbasedoutcome.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -22,6 +19,18 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @GetMapping("/user-all")
+    public ResponseEntity<Object> index(){
+        return ResponseEntity.ok(this.userService.index());
+    }
+    @GetMapping("/user-show-id/{id}")
+    public ResponseEntity<Object> show(@PathVariable ("id") Long id){
+        try {
+            return ResponseEntity.ok(this.userService.show(id));
+        }catch (UserNotFoundException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
     @PostMapping("/registrar")
     public ResponseEntity<Object> userStore(@RequestBody @Validated StoreAndUpdateUserRequest request) {
         try {

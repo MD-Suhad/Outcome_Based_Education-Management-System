@@ -1,5 +1,6 @@
 package com.shohaib.objectbasedoutcome.service.user;
 
+import com.shohaib.objectbasedoutcome.api.v1.request.StoreAndUpdateUserRequest;
 import com.shohaib.objectbasedoutcome.domain.model.User;
 import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserConflictException;
@@ -7,6 +8,7 @@ import com.shohaib.objectbasedoutcome.service.exception.handler.UserException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +26,7 @@ public interface UserService {
 
     Optional<User> getByEmail(String email) throws UserException, UserNotFoundException;
     void checkForPassword(String password, String confirmPassword) throws UserNotFoundException;
+    HashMap<String, Object> login(UserDTO userDTO) throws UserException, UserNotFoundException;
 
 
 }
