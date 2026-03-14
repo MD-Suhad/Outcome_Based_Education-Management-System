@@ -175,5 +175,12 @@ public class UserServiceImpl implements UserService{
         return data;
     }
 
+    @Override
+    public String delete(Long id) throws UserNotFoundException {
+        User user = this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
+        this.userRepository.deleteById(user.getId());
+        return "User Delete Successfully";
+    }
+
 
 }

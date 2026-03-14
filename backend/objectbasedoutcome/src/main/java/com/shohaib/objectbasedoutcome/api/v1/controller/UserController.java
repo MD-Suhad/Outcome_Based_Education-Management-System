@@ -31,14 +31,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    @GetMapping("/user-show-id/{id}")
-    public ResponseEntity<Object> showOne(@PathVariable ("id") Long id){
-        try {
-            return ResponseEntity.ok(this.userService.show(id));
-        }catch (UserNotFoundException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
     @PostMapping("/registrar")
     public ResponseEntity<Object> userStore(@RequestBody @Validated StoreAndUpdateUserRequest request) {
         try {
@@ -61,6 +53,14 @@ public class UserController {
     private String sanitize(String input) {
         if (input == null) return null;
         return input.trim().replaceAll("<[^>]*>", "");
+    }
+    @DeleteMapping("/user-delete-id/{id}")
+    public ResponseEntity<Object> delete(@PathVariable ("id") Long id){
+        try {
+            return ResponseEntity.ok(this.userService.delete(id));
+        }catch (UserNotFoundException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
 
