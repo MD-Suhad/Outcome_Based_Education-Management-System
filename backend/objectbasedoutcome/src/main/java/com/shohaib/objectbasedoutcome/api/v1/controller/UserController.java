@@ -31,6 +31,14 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @GetMapping("/user-show-id/{id}")
+    public ResponseEntity<Object> showOne(@PathVariable ("id") Long id){
+        try {
+            return ResponseEntity.ok(this.userService.show(id));
+        }catch (UserNotFoundException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
     @PostMapping("/registrar")
     public ResponseEntity<Object> userStore(@RequestBody @Validated StoreAndUpdateUserRequest request) {
         try {
