@@ -28,6 +28,7 @@ public interface UserService {
     void checkForPassword(String password, String confirmPassword) throws UserNotFoundException;
     HashMap<String, Object> login(UserDTO userDTO) throws UserException, UserNotFoundException;
     String delete(Long id) throws UserNotFoundException;
+    String updatePassword(UserDTO userDTO) throws UserNotFoundException;
 
 
 }

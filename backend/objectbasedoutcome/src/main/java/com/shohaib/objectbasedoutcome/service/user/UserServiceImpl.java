@@ -1,12 +1,9 @@
 package com.shohaib.objectbasedoutcome.service.user;
 
-import com.shohaib.core.util.JWTUtil;
-import com.shohaib.objectbasedoutcome.api.v1.request.StoreAndUpdateUserRequest;
 import com.shohaib.objectbasedoutcome.domain.model.User;
 import com.shohaib.objectbasedoutcome.domain.model.UserPermission;
 import com.shohaib.objectbasedoutcome.domain.repository.UserPermissionRepository;
 import com.shohaib.objectbasedoutcome.domain.repository.UserRepository;
-import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
 import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
 import com.shohaib.objectbasedoutcome.mapper.UserMapper;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserConflictException;
@@ -180,6 +177,18 @@ public class UserServiceImpl implements UserService{
         User user = this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
         this.userRepository.deleteById(user.getId());
         return "User Delete Successfully";
+    }
+
+    @Override
+    public String updatePassword(UserDTO userDTO) throws UserNotFoundException {
+        try{
+            User user = this.userRepository.findByUsername(userDTO.getUsername()).orElseThrow(()-> new UserNotFoundException("User Id not found"));
+            user.setPassword(userDTO.getPassword());
+            userRepository.save(user);
+            return "Password has been Changed";
+            }catch (UserNotFoundException e){
+            throw new UserNotFoundException(e.getMessage());
+        }
     }
 
 
