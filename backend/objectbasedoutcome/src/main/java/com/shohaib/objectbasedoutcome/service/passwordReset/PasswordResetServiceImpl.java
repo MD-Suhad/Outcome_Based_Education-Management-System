@@ -6,11 +6,16 @@ import com.shohaib.objectbasedoutcome.domain.model.User;
 import com.shohaib.objectbasedoutcome.domain.repository.PasswordResetRepository;
 import com.shohaib.objectbasedoutcome.domain.repository.UserRepository;
 import com.shohaib.objectbasedoutcome.dto.model.PasswordResetDTO;
+import com.shohaib.objectbasedoutcome.dto.model.UserDTO;
+import com.shohaib.objectbasedoutcome.service.emailService.EmailService;
 import com.shohaib.objectbasedoutcome.service.exception.handler.EmailNotFoundException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.PasswordDontMatchException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
+import com.shohaib.objectbasedoutcome.service.user.UserService;
 import com.shohaib.objectbasedoutcome.util.RandomTokenGenerator;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -23,9 +28,15 @@ public class PasswordResetServiceImpl implements PasswordResetService{
     private UserRepository userRepository;
     @Autowired
     private PasswordResetRepository passwordResetsRepository;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserService userService;
 
     @Override
-    public String sendResetEmail(PasswordResetDTO passwordResetDTO) throws EmailNotFoundException, UserNotFoundException {
+    public String sendResetEmail(PasswordResetDTO passwordResetDTO) throws EmailNotFoundException, MessagingException {
         Optional<User> user;
         user = userRepository.findByEmail(passwordResetDTO.getEmail());
         String token = RandomTokenGenerator.generate(128);
@@ -34,17 +45,47 @@ public class PasswordResetServiceImpl implements PasswordResetService{
         java.util.Date date = Date.from(days.atStartOfDay(ZoneId.of("Asia/Dhaka")).toInstant());
         PasswordResets passwordResets = new PasswordResets()
                 .setEmail(passwordResetDTO.getEmail()).setToken(token).setExpiryDate(date);
+        this.emailService.sendMailToResetPassword(passwordResetDTO.getEmail(), user.get().getFirstName() != null ? user.get().getFirstName() : "", user.get().getLastName() != null ? user.get().getLastName() : "", tokenLink, "Password Reset Request");
         passwordResetsRepository.save(passwordResets);
         return "Check Your Mail Confirmation Link";
     }
 
     @Override
     public String verityEmailToken(PasswordResetDTO passwordResetDTO) throws PasswordDontMatchException {
-        return "";
+            if(!passwordResetDTO.getNewPassword().equals(passwordResetDTO.getConfirmPassword())){
+                throw new PasswordDontMatchException("Password do not match");
+            }
+            //hash password
+            passwordResetDTO.setNewPassword(passwordEncoder.encode(passwordResetDTO.getNewPassword()));
+            Optional<PasswordResets> passwordResets = this.passwordResetsRepository.findByToken(passwordResetDTO.getToken());
+            if(passwordResets.isEmpty()){
+                throw new PasswordDontMatchException("Token In Invalid");
+            }
+            final java.util.Date expiration = passwordResets.get().getExpiryDate();
+            if(expiration.before(new java.util.Date(System.currentTimeMillis()))){
+                throw new PasswordDontMatchException("Token Is Expired");
+            } else{
+                if(changeUserPassword(passwordResets.get(), passwordResetDTO.getNewPassword())){
+                    passwordResetsRepository.deleteById(passwordResets.get().getId());
+                    return "Password Changed Successfully";
+                } else {
+                    return String.format("User with given email: '%s' does not exist",passwordResets.get().getEmail());
+                }
+            }
     }
 
     @Override
     public boolean changeUserPassword(PasswordResets passwordResets, String newPassword) throws PasswordDontMatchException {
-        return false;
-    }
+
+        Optional<User> user;
+        try{
+            user = this.userRepository.findByEmail(passwordResets.getEmail());
+            userService.updatePassword(new UserDTO().setPassword(newPassword).setUsername(user.get().getUsername()));
+            return true;
+        } catch (UserNotFoundException  e)
+        {
+            return false;
+        }
+        }
+
 }
