@@ -8,17 +8,11 @@ import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@Accessors(chain = true)
-@Entity
-public class EmailDetails extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String recipient;
+public class EmailDetails  {
+    private String[] recipient;
     private String msgBody;
     private String subject;
     private String attachment;

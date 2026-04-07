@@ -7,6 +7,7 @@ import com.shohaib.objectbasedoutcome.domain.repository.PasswordResetRepository;
 import com.shohaib.objectbasedoutcome.domain.repository.UserRepository;
 import com.shohaib.objectbasedoutcome.dto.model.PasswordResetDTO;
 import com.shohaib.objectbasedoutcome.service.exception.handler.EmailNotFoundException;
+import com.shohaib.objectbasedoutcome.service.exception.handler.PasswordDontMatchException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
 import com.shohaib.objectbasedoutcome.util.RandomTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +36,15 @@ public class PasswordResetServiceImpl implements PasswordResetService{
                 .setEmail(passwordResetDTO.getEmail()).setToken(token).setExpiryDate(date);
         passwordResetsRepository.save(passwordResets);
         return "Check Your Mail Confirmation Link";
+    }
+
+    @Override
+    public String verityEmailToken(PasswordResetDTO passwordResetDTO) throws PasswordDontMatchException {
+        return "";
+    }
+
+    @Override
+    public boolean changeUserPassword(PasswordResets passwordResets, String newPassword) throws PasswordDontMatchException {
+        return false;
     }
 }
