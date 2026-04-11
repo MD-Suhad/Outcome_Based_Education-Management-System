@@ -21,4 +21,5 @@ public class ResetPasswordRequest {
 
     @NotEmpty(message = "Password confirmation is required")
     private String confirmPassword;
+    private String email;
 }

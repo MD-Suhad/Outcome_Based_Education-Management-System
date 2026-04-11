@@ -87,5 +87,12 @@ public class PasswordResetServiceImpl implements PasswordResetService{
             return false;
         }
         }
+    @Override
+    public String manualResetPassword(PasswordResetDTO passwordResetDTO) throws UserNotFoundException {
+        User user = this.userRepository.findByEmail(passwordResetDTO.getEmail()).orElseThrow(()->new UserNotFoundException(String.format("User with %s could not found", passwordResetDTO.getEmail())));
+        user.setPassword(passwordEncoder.encode("12345678"));
+        this.userRepository.save(user);
+        return "Password has been restored";
+    }
 
 }

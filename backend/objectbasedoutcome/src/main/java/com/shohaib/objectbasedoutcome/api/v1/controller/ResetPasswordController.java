@@ -4,6 +4,7 @@ import com.shohaib.core.api.response.Response;
 import com.shohaib.objectbasedoutcome.api.v1.request.ResetPasswordRequest;
 import com.shohaib.objectbasedoutcome.dto.model.PasswordResetDTO;
 import com.shohaib.objectbasedoutcome.service.exception.handler.PasswordDontMatchException;
+import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
 import com.shohaib.objectbasedoutcome.service.passwordReset.PasswordResetService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,16 @@ public class ResetPasswordController {
         try{
             return Response.ok().setPayload(this.passwordResetService.verityEmailToken(passwordResetDTO));
         }catch (PasswordDontMatchException e){
+            return Response.ok().setErrors(e.getMessage());
+        }
+    }
+    @PostMapping("/manual-password-reset")
+    public Response<Object> manualResetPassword(@RequestBody @Valid ResetPasswordRequest resetPasswordRequest, Error error){
+        PasswordResetDTO passwordResetDTO = new PasswordResetDTO()
+                .setEmail(resetPasswordRequest.getEmail());
+        try{
+            return Response.ok().setPayload(this.passwordResetService.manualResetPassword(passwordResetDTO));
+        }catch (UserNotFoundException e){
             return Response.ok().setErrors(e.getMessage());
         }
     }
