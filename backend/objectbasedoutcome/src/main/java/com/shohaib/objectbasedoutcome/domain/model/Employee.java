@@ -24,10 +24,6 @@ public class Employee extends BaseEntity {
 	private String employeeId;
 	private String employeeType;
 	private String employmentType;
-	private Long designationId;
-	private String designation;
-	private Long jobPositionId;
-	private String jobPosition;
 	private String faculty;
 	private Long facultyId;
 	private Long departmentId;
@@ -49,11 +45,5 @@ public class Employee extends BaseEntity {
 	private Date endDate;
 	private String status;
 	private String bankAccountNumber;
-	private Long jobGradeId;
-	private String jobGradeName;
-	private int jobGradePaymentStage;
-	private int numberOfBabies;
-	private boolean holdSalary;
-	private boolean holdSalaryIncrement;
 
 }
