@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -157,15 +158,22 @@ public class UserServiceImpl implements UserService{
     @Override
     public HashMap<String, Object> login(UserDTO userDTO) throws UserException, UserNotFoundException {
         User user = this.userRepository.findByUsername(userDTO.getUsername()).orElseThrow(() -> new UserNotFoundException("user not Found"));
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDTO.getUsername(),userDTO.getPassword());
-        UserDetails userDetails = this.userService.loadUserByUsername(userDTO.getUsername());
-        Authentication authentication = this.authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        this.userRepository.save(user);
-        String userToken = jwt.generateToken(userDetails);
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("token", userToken);
-        return data;
+        try {
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword());
+            UserDetails userDetails = this.userService.loadUserByUsername(userDTO.getUsername());
+            Authentication authentication = this.authenticationManager.authenticate(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            this.userRepository.save(user);
+            String userToken = jwt.generateToken(userDetails);
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("Success",true);
+            data.put("Message","Login Successfully");
+            data.put("token", userToken);
+            return data;
+        }catch (BadCredentialsException e){
+            throw new UserException("Username Or Password Don't Match");
+        }
+
     }
 
     @Override

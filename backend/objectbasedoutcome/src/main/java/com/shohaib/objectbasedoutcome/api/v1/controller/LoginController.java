@@ -26,25 +26,17 @@ public class LoginController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login
-            (
-                    @RequestBody @Valid LoginRequest loginRequest
-            )
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequest loginRequest)
     {
         try
         {
-
             UserDTO userDTO = new UserDTO().setUsername(this.sanitize(loginRequest.getUsername()))
                     .setPassword(loginRequest.getPassword());
-
             return ResponseEntity.ok().body(this.userService.login(userDTO));
-        } catch (UserException e)
+        }catch (UserException | UserNotFoundException e)
         {
             return ResponseEntity.ok().body(e.getMessage());
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
         }
-
     }
     private String sanitize(String input) {
         if (input == null) return null;
