@@ -157,9 +157,6 @@ public class UserServiceImpl implements UserService{
     @Override
     public HashMap<String, Object> login(UserDTO userDTO) throws UserException, UserNotFoundException {
         User user = this.userRepository.findByUsername(userDTO.getUsername()).orElseThrow(() -> new UserNotFoundException("user not Found"));
-//        if(!passwordEncoder.matches(storeAndUpdateUserRequests.getPassword(),user.getPassword())){
-//            throw new UserException("Invalid Password");
-//        }
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDTO.getUsername(),userDTO.getPassword());
         UserDetails userDetails = this.userService.loadUserByUsername(userDTO.getUsername());
         Authentication authentication = this.authenticationManager.authenticate(token);
@@ -168,7 +165,6 @@ public class UserServiceImpl implements UserService{
         String userToken = jwt.generateToken(userDetails);
         HashMap<String, Object> data = new HashMap<>();
         data.put("token", userToken);
-        System.out.println("-----token------ "+token);
         return data;
     }
 
