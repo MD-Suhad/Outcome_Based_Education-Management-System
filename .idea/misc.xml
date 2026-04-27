@@ -8,10 +8,10 @@
         <option value="$PROJECT_DIR$/Discovery/pom.xml" />
         <option value="$PROJECT_DIR$/Api-Gateway/pom.xml" />
         <option value="$PROJECT_DIR$/objectbasedoutcome/pom.xml" />
-        <option value="$PROJECT_DIR$/backend/objectbasedoutcome/pom.xml" />
         <option value="$PROJECT_DIR$/backend/Discovery/pom.xml" />
         <option value="$PROJECT_DIR$/backend/Api-Gateway/pom.xml" />
         <option value="$PROJECT_DIR$/backend/Core/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/objectbasedoutcome/pom.xml" />
       </list>
     </option>
   </component>

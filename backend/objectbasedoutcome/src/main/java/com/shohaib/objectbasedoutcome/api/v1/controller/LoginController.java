@@ -6,8 +6,6 @@ import com.shohaib.objectbasedoutcome.service.exception.handler.UserException;
 import com.shohaib.objectbasedoutcome.service.exception.handler.UserNotFoundException;
 import com.shohaib.objectbasedoutcome.service.user.UserService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

@@ -1,6 +1,7 @@
 package com.shohaib.objectbasedoutcome.configuration.security;
 
 import com.shohaib.objectbasedoutcome.filter.JWTAuthenticationFilter;
+import com.shohaib.objectbasedoutcome.service.oauth.CustomOAuth2UserService;
 import com.shohaib.objectbasedoutcome.service.user.UserDetailsServiceImplementation;
 import com.shohaib.objectbasedoutcome.util.JWTUtils;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,8 @@ import java.util.Map;
 public class SecurityConfiguration  {
     private final UserDetailsServiceImplementation userDetailsService;
     private final JWTUtils jwtUtils;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler  oAuth2SuccessHandler;
     @Bean
     public PasswordEncoder passwordEncoder(){
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
