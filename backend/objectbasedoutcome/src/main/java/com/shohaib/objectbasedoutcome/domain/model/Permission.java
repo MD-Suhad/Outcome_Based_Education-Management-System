@@ -23,4 +23,5 @@ public class Permission extends BaseEntity
     private String title;
     @OneToMany(mappedBy = "permission")
     private Set<UserPermission> userPermissions;
+    private String abrivation;
 }

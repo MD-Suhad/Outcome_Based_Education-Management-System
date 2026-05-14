@@ -34,8 +34,8 @@ spring:
             client-name: Google
 
           github:
-            client-id: YOUR_GITHUB_CLIENT_ID         # ← paste from GitHub Settings
-            client-secret: YOUR_GITHUB_CLIENT_SECRET  # ← paste from GitHub Settings
+            client-id: 136eb0ddff60c3213cce         # ← paste from GitHub Settings
+            client-secret: e9fda88ae8ee46479c12be200910e77185d5a44e  # ← paste from GitHub Settings
             scope:
               - read:user
               - user:email
