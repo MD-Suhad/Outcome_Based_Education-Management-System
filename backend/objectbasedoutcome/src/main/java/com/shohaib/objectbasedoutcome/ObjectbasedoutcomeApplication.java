@@ -8,7 +8,6 @@ import org.springframework.context.annotation.ComponentScan;
 
 //@EnableEurekaClient
 @SpringBootApplication
-@EnableFeignClients
 @ComponentScan(basePackages = {"com.shohaib.objectbasedoutcome", "com.shohaib.core"})
 public class ObjectbasedoutcomeApplication {
 
