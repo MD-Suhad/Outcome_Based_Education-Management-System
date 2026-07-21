@@ -13,7 +13,11 @@ public class JWT
 
     public String getUsername()
     {
-        DecodedJWT jwt = com.auth0.jwt.JWT.decode(this.content);
+        String token = this.content;
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
+        DecodedJWT jwt = com.auth0.jwt.JWT.decode(token);
         return jwt.getSubject();
     }
 

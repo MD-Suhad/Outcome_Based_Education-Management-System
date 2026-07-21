@@ -17,29 +17,36 @@ import java.util.Map;
 
 @Component
 public class JWTUtils {
-    @Value("github-secret")
+    @Value("${auth.token.secret:github-secret-key-that-is-at-least-32-characters}")
     private String secret;
-    private static final String SECRET = "my-very-strong-secret-key-which-is-at-least-32-chars";
+
+    private java.security.Key getSigningKey() {
+        return Keys.hmacShaKeyFor(this.secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
 
     private Claims getClaims(String token){
         Claims claims;
         try{
-            claims = Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token).getBody();
+            claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
         }catch (Exception e){
-            claims =  null;
+            claims = null;
         }
         return claims;
     }
     private boolean isExpired(String token){
         final Date expiration = this.getExpirationDate(token);
-        return expiration.before(new Date(System.currentTimeMillis()));
+        return expiration != null && expiration.before(new Date(System.currentTimeMillis()));
     }
 
     public String getUsername(String token){
         String username;
         try{
             Claims claims = this.getClaims(token);
-            username = claims.getSubject();
+            username = claims != null ? claims.getSubject() : null;
         } catch (Exception e){
             username = null;
         }
@@ -50,7 +57,7 @@ public class JWTUtils {
         Object roles;
         try{
             Claims claims = this.getClaims(token);
-            roles = claims.get("roles");
+            roles = claims != null ? claims.get("roles") : null;
         } catch (Exception e){
             roles = null;
         }
@@ -61,16 +68,16 @@ public class JWTUtils {
         Date expiration;
         try{
             final Claims claims = this.getClaims(token);
-            expiration = claims.getExpiration();
+            expiration = claims != null ? claims.getExpiration() : null;
         } catch (Exception e){
             expiration = null;
         }
         return expiration;
     }
 
-    public  boolean validateToken(String token, UserDetails userDetails){
+    public boolean validateToken(String token, UserDetails userDetails){
         final String username = getUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isExpired(token));
+        return username != null && username.equals(userDetails.getUsername()) && !isExpired(token);
     }
 
     public ArrayList<String> extractRoles(UserDetails userDetails){
@@ -81,17 +88,15 @@ public class JWTUtils {
         return roles;
     }
 
-    public  String generateToken(UserDetails userDetails){
-
+    public String generateToken(UserDetails userDetails){
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", userDetails.getUsername());
-        claims.put("created",new Date(System.currentTimeMillis()));
-        claims.put("roles",this.extractRoles(userDetails));
-        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        claims.put("created", new Date(System.currentTimeMillis()));
+        claims.put("roles", this.extractRoles(userDetails));
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 

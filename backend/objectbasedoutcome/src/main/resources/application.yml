@@ -92,4 +92,4 @@ feign:
 
 auth:
   token:
-    secret: github-secret
+    secret: github-secret-key-that-is-at-least-32-characters-for-obe-ms

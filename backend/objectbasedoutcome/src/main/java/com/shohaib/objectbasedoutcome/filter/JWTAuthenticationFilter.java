@@ -32,19 +32,19 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) req;
         String authToken = httpRequest.getHeader("Authorization");
-        String username = tokenUtils.getUsername(authToken);
-        if(authToken != null) {
-            String pureToken = authToken.startsWith("Bearer ")
-                    ? authToken.substring(7)
-                    :authToken;
-            System.out.println("Checking pure token:this :  "+pureToken);
+        String pureToken = null;
+        if (authToken != null) {
+            pureToken = authToken.startsWith("Bearer ")
+                    ? authToken.substring(7).trim()
+                    : authToken.trim();
         }
+        String username = pureToken != null ? tokenUtils.getUsername(pureToken) : null;
         if((username != null) && (SecurityContextHolder.getContext().getAuthentication() == null)){
 
             try
             {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                if (tokenUtils.validateToken(authToken, userDetails))
+                if (pureToken != null && tokenUtils.validateToken(pureToken, userDetails))
                 {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
