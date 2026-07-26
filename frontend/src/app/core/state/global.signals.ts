@@ -1,4 +1,4 @@
-import { computed, effect, signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { User } from '../models/user.model';
 import { Tenant } from '../models/tenant.model';
 import { Notification } from '../models/notification.model';
@@ -51,66 +51,3 @@ export const unreadNotificationCountSignal = computed(() =>
 export const isLoadingSignal = computed(() => 
   authLoadingSignal() || loadingSignal() || pageLoadingSignal()
 );
-
-// ==================== EFFECTS ====================
-
-// Auto-sync user to localStorage
-effect(() => {
-  const user = currentUserSignal();
-  if (user) {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-  } else {
-    localStorage.removeItem('currentUser');
-  }
-});
-
-// Auto-sync tokens to localStorage
-effect(() => {
-  const token = accessTokenSignal();
-  if (token) {
-    localStorage.setItem('accessToken', token);
-  } else {
-    localStorage.removeItem('accessToken');
-  }
-});
-
-// Auto-sync refresh token to localStorage
-effect(() => {
-  const token = refreshTokenSignal();
-  if (token) {
-    localStorage.setItem('refreshToken', token);
-  } else {
-    localStorage.removeItem('refreshToken');
-  }
-});
-
-// Apply dark mode
-effect(() => {
-  const isDark = darkModeSignal();
-  document.documentElement.classList.toggle('dark', isDark);
-  localStorage.setItem('darkMode', isDark.toString());
-});
-
-// Auto-sync tenant to localStorage
-effect(() => {
-  const tenant = currentTenantSignal();
-  if (tenant) {
-    localStorage.setItem('tenantId', tenant.id);
-  }
-});
-
-// Remove old notifications after 5 seconds
-effect(() => {
-  const notifications = notificationsSignal();
-  if (notifications.length > 0) {
-    const timer = setTimeout(() => {
-      const autoRemoveNotifications = notifications.filter(n => n.type !== 'error');
-      if (autoRemoveNotifications.length < notifications.length) {
-        notificationsSignal.set(autoRemoveNotifications);
-      }
-    }, 5000);
-    
-    return () => clearTimeout(timer);
-  }
-  return;
-});

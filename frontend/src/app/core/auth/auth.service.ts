@@ -22,7 +22,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/auth';
+  private apiUrl = 'http://localhost:8080/api/v1/auth';
 
   private authStateSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
   public authState$ = this.authStateSubject.asObservable();
@@ -41,7 +41,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, request).pipe(
       tap(response => {
         this.setAuthTokens(response);
-        currentUserSignal.set({
+        const userObj = {
           id: String(response.user.id),
           firstName: response.user.firstName,
           lastName: response.user.lastName,
@@ -50,7 +50,9 @@ export class AuthService {
           isActive: true,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
-        });
+        };
+        currentUserSignal.set(userObj);
+        localStorage.setItem('currentUser', JSON.stringify(userObj));
         userPermissionsSignal.set(response.user.permissions);
         isAuthenticatedSignal.set(true);
         authLoadingSignal.set(false);
@@ -184,15 +186,30 @@ export class AuthService {
   private setAuthTokens(response: LoginResponse): void {
     accessTokenSignal.set(response.accessToken);
     refreshTokenSignal.set(response.refreshToken);
+    localStorage.setItem('accessToken', response.accessToken);
+    localStorage.setItem('refreshToken', response.refreshToken);
   }
 
   private loadStoredAuth(): void {
     const token = localStorage.getItem('accessToken');
-    const user = localStorage.getItem('currentUser');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const userStr = localStorage.getItem('currentUser');
 
-    if (token && user) {
+    if (token) {
       accessTokenSignal.set(token);
-      currentUserSignal.set(JSON.parse(user));
+    }
+    if (refreshToken) {
+      refreshTokenSignal.set(refreshToken);
+    }
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        currentUserSignal.set(user);
+      } catch (e) {
+        localStorage.removeItem('currentUser');
+      }
+    }
+    if (token && userStr) {
       isAuthenticatedSignal.set(true);
       this.authStateSubject.next(true);
     }

@@ -28,7 +28,10 @@ public class LoginController {
     {
         try
         {
-            UserDTO userDTO = new UserDTO().setUsername(this.sanitize(loginRequest.getUsername()))
+            String identifier = this.sanitize(loginRequest.getUsername());
+            UserDTO userDTO = new UserDTO()
+                    .setUsername(identifier)
+                    .setEmail(identifier)
                     .setPassword(loginRequest.getPassword());
             return ResponseEntity.ok().body(this.userService.login(userDTO));
         }catch (UserException | UserNotFoundException e)

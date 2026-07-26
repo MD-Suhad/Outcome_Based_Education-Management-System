@@ -218,4 +218,5 @@ import { currentUserSignal } from '../../../core/state/global.signals';
 })
 export class HomeComponent {
   protected authService = inject(AuthService);
+  protected currentUserSignal = currentUserSignal;
 }

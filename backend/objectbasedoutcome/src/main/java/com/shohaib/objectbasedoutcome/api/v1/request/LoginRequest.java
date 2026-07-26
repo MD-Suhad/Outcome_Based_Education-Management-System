@@ -1,8 +1,8 @@
 package com.shohaib.objectbasedoutcome.api.v1.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,13 +14,26 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginRequest {
-    @NotEmpty(message = "Username is required")
-    @Size(min = 4, message = "Username must be at least 4 characters long")
-    @Size(max = 32, message = "Username can not be longer than 32 characters")
+
     private String username;
 
+    private String email;
+
     @NotEmpty(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 5 characters long")
-    @Size(max = 32, message = "Password can not be longer than 32 characters")
     private String password;
+
+    public String getUsername() {
+        if (username != null && !username.isBlank()) {
+            return username;
+        }
+        return email;
+    }
+
+    @JsonProperty("email")
+    public void setEmail(String email) {
+        this.email = email;
+        if (this.username == null || this.username.isBlank()) {
+            this.username = email;
+        }
+    }
 }

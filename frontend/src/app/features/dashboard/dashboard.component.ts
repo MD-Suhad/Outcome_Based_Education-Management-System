@@ -31,6 +31,14 @@ import { currentUserSignal } from '../../core/state/global.signals';
             <span class="material-icons">people</span>
             <span class="item-text" *ngIf="!isSidebarCollapsed()">User List</span>
           </a>
+          <a routerLink="/dashboard/departments" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">account_balance</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">Faculties & Depts</span>
+          </a>
+          <a routerLink="/dashboard/students/bulk-upload" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">cloud_upload</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">Student Bulk Upload</span>
+          </a>
         </nav>
 
         <div class="sidebar-footer">

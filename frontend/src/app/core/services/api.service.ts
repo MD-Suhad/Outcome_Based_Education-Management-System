@@ -5,7 +5,7 @@ import { ApiResponse, PaginatedResponse, SortInfo } from '../models/response.mod
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = '/api';
+  private baseUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
 

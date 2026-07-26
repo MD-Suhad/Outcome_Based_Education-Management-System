@@ -35,6 +35,14 @@ export class ThemeService {
     this._activeTheme.update((current) => (current === 'dark' ? 'light' : 'dark'));
   }
 
+  public toggleDarkMode(): void {
+    this.toggleTheme();
+  }
+
+  public isDarkMode(): boolean {
+    return this._activeTheme() === 'dark';
+  }
+
   public setTheme(theme: AppTheme): void {
     this._activeTheme.set(theme);
   }

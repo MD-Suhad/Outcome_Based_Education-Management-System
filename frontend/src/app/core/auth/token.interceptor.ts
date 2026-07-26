@@ -41,6 +41,9 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
  */
 function isPublicEndpoint(url: string): boolean {
   const publicEndpoints = [
+    '/api/v1/auth/login',
+    '/api/v1/auth/register',
+    '/api/v1/auth/registrar',
     '/api/auth/login',
     '/api/auth/register',
     '/api/auth/forgot-password',
