@@ -1,77 +1,204 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-import { User } from '../models/user.model';
-import { AuthResponse } from '../models/auth-response.model';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { 
+  LoginRequest, 
+  LoginResponse, 
+  SignupRequest, 
+  RefreshTokenRequest,
+  AuthUser 
+} from '../models/auth.model';
+import { 
+  currentUserSignal, 
+  isAuthenticatedSignal, 
+  authLoadingSignal,
+  authErrorSignal,
+  accessTokenSignal,
+  refreshTokenSignal,
+  userPermissionsSignal
+} from '../state/global.signals';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
+  private apiUrl = '/api/auth';
 
-  private _currentUser = signal<User | null>(null);
-  private _accessToken = signal<string | null>(null);
-
-  public currentUser = this._currentUser.asReadonly();
-  public accessToken = this._accessToken.asReadonly();
-
-  public isAuthenticated = computed(() => !!this._currentUser());
+  private authStateSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
+  public authState$ = this.authStateSubject.asObservable();
 
   constructor() {
-    this.loadCachedSession();
+    this.loadStoredAuth();
   }
 
-  public login(credentials: any): Observable<any> {
-    return this.http.post<any>('/api/v1/auth/login', credentials).pipe(
-      tap((res) => {
-        if (res && res.Success && res.token) {
-          const authRes: AuthResponse = {
-            accessToken: res.token,
-            refreshToken: ''
-          };
-          this.setSession(authRes);
-        }
+  /**
+   * Authenticate user with email and password
+   */
+  login(request: LoginRequest): Observable<LoginResponse> {
+    authLoadingSignal.set(true);
+    authErrorSignal.set(null);
+
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, request).pipe(
+      tap(response => {
+        this.setAuthTokens(response);
+        currentUserSignal.set({
+          id: response.user.id,
+          firstName: response.user.firstName,
+          lastName: response.user.lastName,
+          email: response.user.email,
+          role: response.user.role,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+        userPermissionsSignal.set(response.user.permissions);
+        isAuthenticatedSignal.set(true);
+        authLoadingSignal.set(false);
+        this.authStateSubject.next(true);
+      }),
+      catchError(error => {
+        authErrorSignal.set(error?.error?.message || 'Login failed');
+        authLoadingSignal.set(false);
+        return throwError(() => error);
       })
     );
   }
 
-  public register(payload: any): Observable<any> {
-    return this.http.post<any>('/api/v1/auth/registrar', payload);
+  /**
+   * Register new user
+   */
+  signup(request: SignupRequest): Observable<AuthUser> {
+    authLoadingSignal.set(true);
+    authErrorSignal.set(null);
+
+    return this.http.post<AuthUser>(`${this.apiUrl}/register`, request).pipe(
+      tap(() => {
+        authLoadingSignal.set(false);
+      }),
+      catchError(error => {
+        authErrorSignal.set(error?.error?.message || 'Signup failed');
+        authLoadingSignal.set(false);
+        return throwError(() => error);
+      })
+    );
   }
 
-  public logout(): void {
-    this._currentUser.set(null);
-    this._accessToken.set(null);
-    localStorage.removeItem('access_token');
-  }
+  /**
+   * Refresh access token using refresh token
+   */
+  refreshAccessToken(): Observable<LoginResponse> {
+    const refreshToken = refreshTokenSignal();
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
 
-  private setSession(res: AuthResponse): void {
-    if (res.accessToken) {
-      this._accessToken.set(res.accessToken);
-      localStorage.setItem('access_token', res.accessToken);
-      try {
-        this._currentUser.set(this.decodeJwtClaims(res.accessToken));
-      } catch (e) {
-        console.error('Failed to decode token claims', e);
+    const request: RefreshTokenRequest = { refreshToken };
+    return this.http.post<LoginResponse>(`${this.apiUrl}/refresh`, request).pipe(
+      tap(response => {
+        this.setAuthTokens(response);
+      }),
+      catchError(error => {
         this.logout();
-      }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Logout user
+   */
+  logout(): void {
+    accessTokenSignal.set(null);
+    refreshTokenSignal.set(null);
+    currentUserSignal.set(null);
+    userPermissionsSignal.set([]);
+    isAuthenticatedSignal.set(false);
+    authErrorSignal.set(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('currentUser');
+    this.authStateSubject.next(false);
+  }
+
+  /**
+   * Get current access token
+   */
+  getAccessToken(): string | null {
+    return accessTokenSignal();
+  }
+
+  /**
+   * Get current refresh token
+   */
+  getRefreshToken(): string | null {
+    return refreshTokenSignal();
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return !!accessTokenSignal() && !!currentUserSignal();
+  }
+
+  /**
+   * Check if token is expired
+   */
+  isTokenExpired(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return true;
+
+    try {
+      const payload = this.parseJwt(token);
+      const expirationTime = payload.exp * 1000;
+      return Date.now() >= expirationTime;
+    } catch (error) {
+      return true;
     }
   }
 
-  private loadCachedSession(): void {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      this._accessToken.set(token);
-      try {
-        this._currentUser.set(this.decodeJwtClaims(token));
-      } catch {
-        this.logout();
-      }
+  /**
+   * Check if user has permission
+   */
+  hasPermission(permissionName: string): boolean {
+    return userPermissionsSignal().some(p => p.name === permissionName);
+  }
+
+  /**
+   * Check if user has role
+   */
+  hasRole(role: string): boolean {
+    const user = currentUserSignal();
+    return user?.role === role;
+  }
+
+  /**
+   * Get current user
+   */
+  getCurrentUser(): Observable<AuthUser> {
+    return this.http.get<AuthUser>(`${this.apiUrl}/me`);
+  }
+
+  // ==================== PRIVATE METHODS ====================
+
+  private setAuthTokens(response: LoginResponse): void {
+    accessTokenSignal.set(response.accessToken);
+    refreshTokenSignal.set(response.refreshToken);
+  }
+
+  private loadStoredAuth(): void {
+    const token = localStorage.getItem('accessToken');
+    const user = localStorage.getItem('currentUser');
+
+    if (token && user) {
+      accessTokenSignal.set(token);
+      currentUserSignal.set(JSON.parse(user));
+      isAuthenticatedSignal.set(true);
+      this.authStateSubject.next(true);
     }
   }
 
-  private decodeJwtClaims(token: string): User {
+  private parseJwt(token: string): any {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -81,17 +208,10 @@ export class AuthService {
           .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
           .join('')
       );
-      const decoded = JSON.parse(jsonPayload);
-      return {
-        id: decoded.sub || decoded.id,
-        email: decoded.email || decoded.sub,
-        firstName: decoded.firstName || decoded.name || decoded.sub,
-        lastName: decoded.lastName || '',
-        roles: decoded.roles || [],
-        permissions: decoded.permissions || []
-      };
-    } catch (e) {
-      throw new Error('Invalid token');
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      return null;
     }
   }
 }
+

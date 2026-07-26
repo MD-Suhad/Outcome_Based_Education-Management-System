@@ -1,14 +1,51 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from './auth.service';
+import { switchMap } from 'rxjs/operators';
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('access_token');
+  const authService = inject(AuthService);
+  const token = authService.getAccessToken();
 
-  let headers = req.headers;
-
-  if (token) {
-    headers = headers.set('Authorization', `Bearer ${token}`);
+  // Add Bearer token to requests (except public endpoints)
+  if (token && !isPublicEndpoint(req.url)) {
+    req = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
   }
 
-  const modifiedReq = req.clone({ headers });
-  return next(modifiedReq);
+  // Check if token is expired and refresh if needed
+  if (token && authService.isTokenExpired()) {
+    return authService.refreshAccessToken().pipe(
+      switchMap(() => {
+        const newToken = authService.getAccessToken();
+        if (newToken) {
+          req = req.clone({
+            setHeaders: {
+              Authorization: `Bearer ${newToken}`
+            }
+          });
+        }
+        return next(req);
+      })
+    );
+  }
+
+  return next(req);
 };
+
+/**
+ * Check if endpoint is public and doesn't require authentication
+ */
+function isPublicEndpoint(url: string): boolean {
+  const publicEndpoints = [
+    '/api/auth/login',
+    '/api/auth/register',
+    '/api/auth/forgot-password',
+    '/api/auth/reset-password'
+  ];
+  return publicEndpoints.some(endpoint => url.includes(endpoint));
+}
+
