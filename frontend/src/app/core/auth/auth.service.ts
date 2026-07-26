@@ -42,7 +42,7 @@ export class AuthService {
       tap(response => {
         this.setAuthTokens(response);
         currentUserSignal.set({
-          id: response.user.id,
+          id: String(response.user.id),
           firstName: response.user.firstName,
           lastName: response.user.lastName,
           email: response.user.email,

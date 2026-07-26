@@ -253,17 +253,17 @@ export class RegisterComponent {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.authService.register(this.registerForm.value).subscribe({
-      next: (res) => {
+    this.authService.signup(this.registerForm.value).subscribe({
+      next: () => {
         this.isLoading.set(false);
         this.successMessage.set('Account registered successfully! Redirecting...');
         setTimeout(() => {
           this.router.navigate(['/auth/login']);
         }, 1500);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.error || 'Registration failed. Try again.');
+        this.errorMessage.set(err.error?.message || 'Registration failed. Try again.');
       }
     });
   }

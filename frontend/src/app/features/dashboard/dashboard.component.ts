@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService } from '../../core/theme/theme.service';
+import { currentUserSignal } from '../../core/state/global.signals';
 
 @Component({
   selector: 'app-dashboard',
@@ -49,14 +50,14 @@ import { ThemeService } from '../../core/theme/theme.service';
 
           <div class="header-right">
             <!-- Theme Toggle -->
-            <button (click)="themeService.toggleTheme()" class="theme-toggle">
+            <button (click)="themeService.toggleDarkMode()" class="theme-toggle">
               <span class="material-icons">
-                {{ themeService.activeTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}
+                {{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}
               </span>
             </button>
 
             <!-- User Badge -->
-            <div class="user-badge" *ngIf="authService.currentUser() as user">
+            <div class="user-badge" *ngIf="currentUserSignal() as user">
               <span class="user-avatar">
                 {{ user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U' }}
               </span>
@@ -270,6 +271,7 @@ export class DashboardComponent {
   protected themeService = inject(ThemeService);
   private router = inject(Router);
 
+  protected currentUserSignal = currentUserSignal;
   protected isSidebarCollapsed = signal<boolean>(false);
 
   protected toggleSidebar(): void {

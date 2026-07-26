@@ -1,6 +1,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/auth/auth.service';
+import { currentUserSignal } from '../../../core/state/global.signals';
 
 @Component({
   selector: 'app-home',
@@ -8,7 +9,7 @@ import { AuthService } from '../../../core/auth/auth.service';
   imports: [CommonModule],
   template: `
     <div class="home-container">
-      <div class="welcome-banner" *ngIf="authService.currentUser() as user">
+      <div class="welcome-banner" *ngIf="currentUserSignal() as user">
         <h2>Welcome Back, {{ user.firstName || 'Educator' }}!</h2>
         <p>Manage and map your Outcome-Based Education parameters, curriculum metrics, and student attainment.</p>
       </div>

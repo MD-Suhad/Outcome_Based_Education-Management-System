@@ -20,15 +20,15 @@ import { AuthService } from '../../../core/auth/auth.service';
       </div>
 
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="email">Email</label>
         <input
-          id="username"
-          type="text"
-          formControlName="username"
-          placeholder="Enter your username"
-          [class.invalid]="isFieldInvalid('username')"
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+          [class.invalid]="isFieldInvalid('email')"
         />
-        <span class="error-text" *ngIf="isFieldInvalid('username')">Username is required</span>
+        <span class="error-text" *ngIf="isFieldInvalid('email')">Valid email is required</span>
       </div>
 
       <div class="form-group">
@@ -182,7 +182,7 @@ export class LoginComponent {
   private router = inject(Router);
 
   protected loginForm: FormGroup = this.fb.group({
-    username: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
   });
 
@@ -201,17 +201,13 @@ export class LoginComponent {
     this.errorMessage.set(null);
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: (res) => {
+      next: () => {
         this.isLoading.set(false);
-        if (res && res.Success) {
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.errorMessage.set(res?.Message || 'Authentication failed. Please check credentials.');
-        }
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.error || 'Server error. Please try again later.');
+        this.errorMessage.set(err.error?.message || 'Authentication failed. Please check credentials.');
       }
     });
   }

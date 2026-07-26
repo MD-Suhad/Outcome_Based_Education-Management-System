@@ -112,4 +112,5 @@ effect(() => {
     
     return () => clearTimeout(timer);
   }
+  return;
 });
