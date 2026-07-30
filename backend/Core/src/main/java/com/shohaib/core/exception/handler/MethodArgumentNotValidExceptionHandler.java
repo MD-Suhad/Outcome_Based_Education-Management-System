@@ -12,17 +12,15 @@ public class MethodArgumentNotValidExceptionHandler
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Response<Object> handle(MethodArgumentNotValidException e)
     {
-        return Response.validationException().setErrors(this.getMessages(e.getMessage()));
+        return Response.validationException().setErrors(this.getMessages(e));
     }
 
-
-    private ArrayList<String> getMessages(String exceptionMessage)
+    private ArrayList<String> getMessages(MethodArgumentNotValidException e)
     {
         ArrayList<String> messages = new ArrayList<>();
-        for(String str: exceptionMessage.split(","))
-        {
-            messages.add(str.split(":")[1].trim() + ".");
-        }
+        e.getBindingResult().getFieldErrors().forEach(error -> {
+            messages.add(error.getDefaultMessage());
+        });
         return messages;
     }
 }

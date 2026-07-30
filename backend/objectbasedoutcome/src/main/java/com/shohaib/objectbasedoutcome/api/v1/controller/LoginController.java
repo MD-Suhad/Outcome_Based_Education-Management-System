@@ -36,7 +36,7 @@ public class LoginController {
             return ResponseEntity.ok().body(this.userService.login(userDTO));
         }catch (UserException | UserNotFoundException e)
         {
-            return ResponseEntity.ok().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
         }
     }
     private String sanitize(String input) {

@@ -46,10 +46,10 @@ public class UserController {
                     .setPhoneNumber(sanitize(request.getPhoneNumber()))
                     .setAddress(sanitize(request.getAddress()));
 
-            return ResponseEntity.ok(userService.store(userDTO));
+            return ResponseEntity.ok(java.util.Map.of("message", userService.store(userDTO)));
 
         } catch (UserNotFoundException | UserConflictException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
         }
     }
 
