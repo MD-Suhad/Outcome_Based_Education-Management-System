@@ -30,6 +30,30 @@ export const routes: Routes = [
         loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent)
       },
       {
+        path: 'programs/outcomes',
+        loadComponent: () => import('./features/programs/program-outcomes.component').then(m => m.ProgramOutcomesComponent)
+      },
+      {
+        path: 'outcomes/matrix',
+        loadComponent: () => import('./features/outcomes/copo-mapping.component').then(m => m.CoPoMappingComponent)
+      },
+      {
+        path: 'assessments',
+        loadComponent: () => import('./features/assessments/assessment-manager.component').then(m => m.AssessmentManagerComponent)
+      },
+      {
+        path: 'results/attainment',
+        loadComponent: () => import('./features/results/attainment-analytics.component').then(m => m.AttainmentAnalyticsComponent)
+      },
+      {
+        path: 'ai-assistant',
+        loadComponent: () => import('./features/ai-assistant/ai-assistant.component').then(m => m.AiAssistantComponent)
+      },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./features/notifications/notifications-center.component').then(m => m.NotificationsCenterComponent)
+      },
+      {
         path: 'users',
         loadComponent: () => import('./features/users/users.component').then(m => m.UsersComponent)
       },
