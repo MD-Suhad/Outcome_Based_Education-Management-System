@@ -8,7 +8,8 @@
 
 This project contains extensive documentation organized by topic. Choose what you need:
 
-### **🎯 Getting Started**
+### **🎯 Getting Started & Master Architecture Blueprint**
+- **Architecture Blueprint & Mentorship Roadmap:** [Master Architecture Blueprint](./docs/MASTER_ARCHITECTURE_BLUEPRINT.md) ⭐ *(Staff Architecture Blueprint & Senior Backend Engineering Laboratory Guide)*
 - **First time here?** Start with [Project Vision & Design](./SYSTEM_VISION_AND_DESIGN.md) to understand the big picture
 - **Want to run it locally?** Go to [Backend Setup Guide](./backend/README.md)
 - **Frontend dev?** See [Frontend Architecture](./FRONTEND_ARCHITECTURE_DETAILED.md)
@@ -17,10 +18,12 @@ This project contains extensive documentation organized by topic. Choose what yo
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
+| [Master Architecture Blueprint](./docs/MASTER_ARCHITECTURE_BLUEPRINT.md) | BMAD Framework, Staff System Design, Senior Engineering Mentorship Roadmap | Architects, Senior Engineers |
 | [System Vision & Design](./SYSTEM_VISION_AND_DESIGN.md) | Complete system architecture, data models, scalability, roadmap | Architects, Project Managers |
 | [Backend README](./backend/README.md) | All backend services overview and setup | Backend Developers |
 | [Frontend Architecture](./FRONTEND_ARCHITECTURE_DETAILED.md) | Angular app structure, Signals, state management | Frontend Developers |
 | [Optimization Guide](./OPTIMIZATION_AND_BEST_PRACTICES.md) | Performance tuning, security, caching strategies | All Developers |
+
 | [Architecture Documentation](./docs/Architecture.md) | High-level system design | Everyone |
 | [Frontend Architecture Docs](./docs/FrontendArchitecture.md) | Frontend structure and patterns | Frontend Developers |
 
