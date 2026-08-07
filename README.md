@@ -20,8 +20,11 @@ This project contains extensive documentation organized by topic. Choose what yo
 |----------|---------|----------|
 | [Master Architecture Blueprint](./docs/MASTER_ARCHITECTURE_BLUEPRINT.md) | BMAD Framework, Staff System Design, Senior Engineering Mentorship Roadmap | Architects, Senior Engineers |
 | [System Vision & Design](./SYSTEM_VISION_AND_DESIGN.md) | Complete system architecture, data models, scalability, roadmap | Architects, Project Managers |
+| [REST API & OpenAPI 3.0 Specs](./docs/API_SPECIFICATION.md) | Complete OpenAPI endpoints, request/response DTOs, RFC 7807 error format | API Developers, Integrators |
+| [Database Schema Blueprint](./docs/DATABASE_SCHEMA_BLUEPRINT.md) | ER Diagrams, multi-tenant DB structure, JSONB rubrics, Outbox table | Database Engineers, Backend Devs |
+| [System Architecture](./docs/Architecture.md) | Microservices topology, sequence diagrams, Gateway & Eureka design | Backend Developers, Architects |
+| [Frontend Architecture](./docs/FrontendArchitecture.md) | Angular 19+ app structure, Signals, state management, toast engine | Frontend Developers |
 | [Backend README](./backend/README.md) | All backend services overview and setup | Backend Developers |
-| [Frontend Architecture](./FRONTEND_ARCHITECTURE_DETAILED.md) | Angular app structure, Signals, state management | Frontend Developers |
 | [Optimization Guide](./OPTIMIZATION_AND_BEST_PRACTICES.md) | Performance tuning, security, caching strategies | All Developers |
 
 ### **🔧 Enterprise System Architecture Configuration**
