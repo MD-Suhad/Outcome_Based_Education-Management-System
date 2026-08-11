@@ -5,7 +5,9 @@ import com.shohaib.core.domain.model.Department;
 import com.shohaib.core.domain.model.Faculty;
 import com.shohaib.core.domain.repository.DepartmentRepository;
 import com.shohaib.core.domain.repository.FacultyRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,18 +21,21 @@ public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final FacultyRepository facultyRepository;
 
+    @Cacheable(value = "departments", key = "'all'")
     public List<DepartmentDTO> getAllDepartments() {
         return departmentRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "departments_faculty", key = "#facultyId")
     public List<DepartmentDTO> getDepartmentsByFaculty(Long facultyId) {
         return departmentRepository.findByFacultyId(facultyId).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "department", key = "#id")
     public DepartmentDTO getDepartmentById(Long id) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with ID: " + id));
@@ -38,6 +43,11 @@ public class DepartmentService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "departments", allEntries = true),
+        @CacheEvict(value = "departments_faculty", allEntries = true),
+        @CacheEvict(value = "department", key = "#dto.id", condition = "#dto.id != null")
+    })
     public DepartmentDTO createDepartment(DepartmentDTO dto) {
         if (departmentRepository.findByCode(dto.getCode()).isPresent()) {
             throw new RuntimeException("Department with code " + dto.getCode() + " already exists.");
@@ -57,6 +67,11 @@ public class DepartmentService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "departments", allEntries = true),
+        @CacheEvict(value = "departments_faculty", allEntries = true),
+        @CacheEvict(value = "department", key = "#id")
+    })
     public DepartmentDTO updateDepartment(Long id, DepartmentDTO dto) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with ID: " + id));
@@ -72,6 +87,11 @@ public class DepartmentService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "departments", allEntries = true),
+        @CacheEvict(value = "departments_faculty", allEntries = true),
+        @CacheEvict(value = "department", key = "#id")
+    })
     public void deleteDepartment(Long id) {
         departmentRepository.deleteById(id);
     }
