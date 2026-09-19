@@ -8,7 +8,8 @@
 
 This project contains extensive documentation organized by topic. Choose what you need:
 
-### **🎯 Getting Started**
+### **🎯 Getting Started & Master Architecture Blueprint**
+- **Master Architecture Blueprint & Senior Engineering Roadmap:** [Master Architecture Blueprint](./docs/MASTER_ARCHITECTURE_BLUEPRINT.md) ⭐ *(Staff Architecture Blueprint & Senior Backend Engineering Laboratory Guide)*
 - **First time here?** Start with [Project Vision & Design](./SYSTEM_VISION_AND_DESIGN.md) to understand the big picture
 - **Want to run it locally?** Go to [Backend Setup Guide](./backend/README.md)
 - **Frontend dev?** See [Frontend Architecture](./FRONTEND_ARCHITECTURE_DETAILED.md)
@@ -17,22 +18,52 @@ This project contains extensive documentation organized by topic. Choose what yo
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
+| [Master Architecture Blueprint](./docs/MASTER_ARCHITECTURE_BLUEPRINT.md) | BMAD Framework, Staff System Design, Senior Engineering Mentorship Roadmap | Architects, Senior Engineers |
 | [System Vision & Design](./SYSTEM_VISION_AND_DESIGN.md) | Complete system architecture, data models, scalability, roadmap | Architects, Project Managers |
+| [REST API & OpenAPI 3.0 Specs](./docs/API_SPECIFICATION.md) | Complete OpenAPI endpoints, request/response DTOs, RFC 7807 error format | API Developers, Integrators |
+| [Database Schema Blueprint](./docs/DATABASE_SCHEMA_BLUEPRINT.md) | ER Diagrams, multi-tenant DB structure, JSONB rubrics, Outbox table | Database Engineers, Backend Devs |
+| [System Architecture](./docs/Architecture.md) | Microservices topology, sequence diagrams, Gateway & Eureka design | Backend Developers, Architects |
+| [Frontend Architecture](./docs/FrontendArchitecture.md) | Angular 19+ app structure, Signals, state management, toast engine | Frontend Developers |
 | [Backend README](./backend/README.md) | All backend services overview and setup | Backend Developers |
-| [Frontend Architecture](./FRONTEND_ARCHITECTURE_DETAILED.md) | Angular app structure, Signals, state management | Frontend Developers |
 | [Optimization Guide](./OPTIMIZATION_AND_BEST_PRACTICES.md) | Performance tuning, security, caching strategies | All Developers |
-| [Architecture Documentation](./docs/Architecture.md) | High-level system design | Everyone |
-| [Frontend Architecture Docs](./docs/FrontendArchitecture.md) | Frontend structure and patterns | Frontend Developers |
 
-### **🔧 Individual Service Documentation**
+### **🔧 Enterprise System Architecture Configuration**
 
-| Service | Port | Purpose | Documentation |
-|---------|------|---------|-----------------|
-| **Discovery Server** | 8761 | Service registry (Eureka) | [README](./backend/Discovery/README.md) |
-| **API Gateway** | 8080 | Request routing & filtering | [README](./backend/Api-Gateway/README.md) |
-| **Auth Service** | 8081 | Authentication & user management | [README](./backend/objectbasedoutcome/README.md) |
-| **Core Service** | 8082 | Business logic & OBE operations | [README](./backend/Core/README.md) |
-| **Frontend** | 4200 | Angular SPA | [Architecture](./FRONTEND_ARCHITECTURE_DETAILED.md) |
+| Service / Module | Port | Architecture Responsibility | Key Technologies |
+|------------------|------|-----------------------------|------------------|
+| **Discovery Server** | `8761` | Dynamic Service Registry & Health Monitoring | Netflix Eureka, Spring Boot 3.3 |
+| **API Gateway** | `8080` | Unified Entry Point, Reactive Routing, Load Balancing | Spring Cloud Gateway, Project Reactor |
+| **Auth Service** | `8081` | Authentication, RBAC, Multi-Tenant User Management, JWT Tokens | Spring Security, Flyway, MySQL/PostgreSQL |
+| **Core Service** | `8082` | Academic Domain, Courses, PO/CO Definitions, Assessments | Spring Data JPA, Hibernate, Resilience4j |
+| **Frontend SPA** | `4200` | Angular Single Page Application with Signals & Glassmorphism UI | Angular 19, Angular Material, SCSS, RxJS |
+
+---
+
+## 🚀 Key Feature Modules Architecture
+
+### 1. 🎯 Program Learning Outcomes (PLOs / POs) Module
+* **Location:** [frontend/src/app/features/programs](file:///f:/Shohaib/Project/Outcome_Based_Education-Management-System/frontend/src/app/features/programs/program-outcomes.component.ts)
+* **Function:** Washington Accord & University PLO definition, Taxonomy Domain classification (Cognitive, Affective, Psychomotor), target vs actual attainment tracking.
+
+### 2. 🧩 CO-PO Matrix Mapping Module
+* **Location:** [frontend/src/app/features/outcomes](file:///f:/Shohaib/Project/Outcome_Based_Education-Management-System/frontend/src/app/features/outcomes/copo-mapping.component.ts)
+* **Function:** Interactive correlation grid mapping Course Outcomes (CO1-CO4) against PLO-1 to PLO-6 with standard OBE correlation weights (3 = High, 2 = Medium, 1 = Low).
+
+### 3. 📝 Assessments & Rubric Builder Module
+* **Location:** [frontend/src/app/features/assessments](file:///f:/Shohaib/Project/Outcome_Based_Education-Management-System/frontend/src/app/features/assessments/assessment-manager.component.ts)
+* **Function:** Exam, Assignment, Quiz, and Project scheme setup, CO mapping, weightage calculation, and a multi-level Evaluation Rubric preview.
+
+### 4. 📊 Student Attainment & CQI Engine
+* **Location:** [frontend/src/app/features/results](file:///f:/Shohaib/Project/Outcome_Based_Education-Management-System/frontend/src/app/features/results/attainment-analytics.component.ts)
+* **Function:** Cohort and student-level direct outcome attainment metrics, gap analysis alerts, and accreditation audit PDF generation.
+
+### 5. 🤖 AI Curriculum & CO-PO Alignment Assistant
+* **Location:** [frontend/src/app/features/ai-assistant](file:///f:/Shohaib/Project/Outcome_Based_Education-Management-System/frontend/src/app/features/ai-assistant/ai-assistant.component.ts)
+* **Function:** LLM-powered syllabus analyzer that extracts CLOs, classifies Bloom's Taxonomy, and recommends PLO mapping weights with rationale.
+
+### 6. 🔔 Real-Time Notification Center & Toast Engine
+* **Location:** [frontend/src/app/core/notification](file:///f:/Shohaib/Project/Outcome_Based_Education-Management-System/frontend/src/app/core/notification/notification.service.ts)
+* **Function:** Header bell notification dropdown, full Notification Management Center page (`/dashboard/notifications`), and auto-dismissing Toast popups.
 
 ---
 

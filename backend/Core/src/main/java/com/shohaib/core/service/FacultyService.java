@@ -3,7 +3,9 @@ package com.shohaib.core.service;
 import com.shohaib.core.api.dto.FacultyDTO;
 import com.shohaib.core.domain.model.Faculty;
 import com.shohaib.core.domain.repository.FacultyRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +18,14 @@ public class FacultyService {
 
     private final FacultyRepository facultyRepository;
 
+    @Cacheable(value = "faculties", key = "'all'")
     public List<FacultyDTO> getAllFaculties() {
         return facultyRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "faculty", key = "#id")
     public FacultyDTO getFacultyById(Long id) {
         Faculty faculty = facultyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Faculty not found with ID: " + id));
@@ -29,6 +33,10 @@ public class FacultyService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "faculties", allEntries = true),
+        @CacheEvict(value = "faculty", key = "#dto.id", condition = "#dto.id != null")
+    })
     public FacultyDTO createFaculty(FacultyDTO dto) {
         if (facultyRepository.findByCode(dto.getCode()).isPresent()) {
             throw new RuntimeException("Faculty with code " + dto.getCode() + " already exists.");
@@ -42,6 +50,10 @@ public class FacultyService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "faculties", allEntries = true),
+        @CacheEvict(value = "faculty", key = "#id")
+    })
     public FacultyDTO updateFaculty(Long id, FacultyDTO dto) {
         Faculty faculty = facultyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Faculty not found with ID: " + id));
@@ -51,6 +63,10 @@ public class FacultyService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "faculties", allEntries = true),
+        @CacheEvict(value = "faculty", key = "#id")
+    })
     public void deleteFaculty(Long id) {
         facultyRepository.deleteById(id);
     }

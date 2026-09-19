@@ -4,13 +4,16 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService } from '../../core/theme/theme.service';
 import { currentUserSignal } from '../../core/state/global.signals';
+import { NotificationService } from '../../core/notification/notification.service';
+import { ToastContainerComponent } from '../../core/notification/toast-container.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterOutlet],
+  imports: [CommonModule, RouterModule, RouterOutlet, ToastContainerComponent],
   template: `
     <div class="dashboard-wrapper">
+      <app-toast-container></app-toast-container>
       <!-- Sidebar -->
       <aside class="sidebar" [class.collapsed]="isSidebarCollapsed()">
         <div class="logo-area">
@@ -19,21 +22,56 @@ import { currentUserSignal } from '../../core/state/global.signals';
         </div>
 
         <nav class="nav-menu">
+          <!-- Main Section -->
+          <div class="nav-section-label" *ngIf="!isSidebarCollapsed()">MAIN</div>
           <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-            <span class="material-icons">dashboard</span>
+            <span class="material-icons">space_dashboard</span>
             <span class="item-text" *ngIf="!isSidebarCollapsed()">Overview</span>
           </a>
+
+          <!-- OBE Curriculum Section -->
+          <div class="nav-section-label" *ngIf="!isSidebarCollapsed()">OBE CURRICULUM</div>
           <a routerLink="/dashboard/courses" routerLinkActive="active" class="nav-item">
             <span class="material-icons">menu_book</span>
             <span class="item-text" *ngIf="!isSidebarCollapsed()">OBE Courses</span>
           </a>
-          <a routerLink="/dashboard/users" routerLinkActive="active" class="nav-item">
-            <span class="material-icons">people</span>
-            <span class="item-text" *ngIf="!isSidebarCollapsed()">User List</span>
+          <a routerLink="/dashboard/programs/outcomes" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">track_changes</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">Program PLOs</span>
+          </a>
+          <a routerLink="/dashboard/outcomes/matrix" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">grid_on</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">CO-PO Matrix</span>
+          </a>
+          <a routerLink="/dashboard/ai-assistant" routerLinkActive="active" class="nav-item ai-item">
+            <span class="material-icons">auto_awesome</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">AI Alignment Assistant</span>
+          </a>
+
+          <!-- Evaluation & Attainment Section -->
+          <div class="nav-section-label" *ngIf="!isSidebarCollapsed()">EVALUATION</div>
+          <a routerLink="/dashboard/assessments" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">assignment</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">Assessments & Rubrics</span>
+          </a>
+          <a routerLink="/dashboard/results/attainment" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">analytics</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">Attainment & CQI</span>
+          </a>
+
+          <!-- Administration Section -->
+          <div class="nav-section-label" *ngIf="!isSidebarCollapsed()">ADMINISTRATION</div>
+          <a routerLink="/dashboard/notifications" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">notifications_active</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">Notifications Center</span>
           </a>
           <a routerLink="/dashboard/departments" routerLinkActive="active" class="nav-item">
             <span class="material-icons">account_balance</span>
             <span class="item-text" *ngIf="!isSidebarCollapsed()">Faculties & Depts</span>
+          </a>
+          <a routerLink="/dashboard/users" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">group</span>
+            <span class="item-text" *ngIf="!isSidebarCollapsed()">User Management</span>
           </a>
           <a routerLink="/dashboard/students/bulk-upload" routerLinkActive="active" class="nav-item">
             <span class="material-icons">cloud_upload</span>
@@ -57,6 +95,40 @@ import { currentUserSignal } from '../../core/state/global.signals';
           </div>
 
           <div class="header-right">
+            <!-- Real-Time Notification Bell Dropdown -->
+            <div class="notification-wrapper">
+              <button (click)="toggleNotifications()" class="nav-icon-btn" title="Notifications">
+                <span class="material-icons">notifications</span>
+                <span class="notif-badge" *ngIf="notifService.unreadCount() > 0">
+                  {{ notifService.unreadCount() }}
+                </span>
+              </button>
+
+              <!-- Dropdown Panel -->
+              <div class="notif-dropdown" *ngIf="isNotifOpen()">
+                <div class="notif-header">
+                  <h3>System Notifications</h3>
+                  <button (click)="notifService.markAllAsRead()" class="btn-text">Mark all read</button>
+                </div>
+
+                <div class="notif-list">
+                  <div 
+                    *ngFor="let item of notifService.notifications$()" 
+                    class="notif-item"
+                    [class.unread]="!item.isRead"
+                    (click)="onNotifClick(item)"
+                  >
+                    <div class="notif-dot" [class]="item.severity"></div>
+                    <div class="notif-content">
+                      <span class="notif-title">{{ item.title }}</span>
+                      <span class="notif-msg">{{ item.message }}</span>
+                      <span class="notif-time">{{ item.timestamp }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Theme Toggle -->
             <button (click)="themeService.toggleDarkMode()" class="theme-toggle">
               <span class="material-icons">
@@ -130,11 +202,20 @@ import { currentUserSignal } from '../../core/state/global.signals';
       white-space: nowrap;
     }
     .nav-menu {
-      padding: 1.5rem 0.75rem;
+      padding: 1.25rem 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.35rem;
       flex: 1;
+      overflow-y: auto;
+    }
+    .nav-section-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin: 0.8rem 0 0.25rem 0.8rem;
+      text-transform: uppercase;
     }
     .nav-item {
       display: flex;
@@ -207,7 +288,11 @@ import { currentUserSignal } from '../../core/state/global.signals';
       align-items: center;
       gap: 1.5rem;
     }
-    .theme-toggle {
+    /* Notification Center Styles */
+    .notification-wrapper {
+      position: relative;
+    }
+    .nav-icon-btn {
       background: none;
       border: none;
       color: var(--nav-item-text);
@@ -217,54 +302,83 @@ import { currentUserSignal } from '../../core/state/global.signals';
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
       transition: background 0.2s;
     }
-    .theme-toggle:hover {
-      background: var(--nav-item-hover-bg);
-    }
-    .user-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--user-badge-bg);
-      border: 1px solid var(--user-badge-border);
-      padding: 0.35rem 0.75rem;
-      border-radius: 30px;
-    }
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    .nav-icon-btn:hover { background: var(--nav-item-hover-bg); }
+    .notif-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #f43f5e;
       color: white;
+      font-size: 0.68rem;
+      font-weight: 800;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 600;
-      font-size: 0.9rem;
+      box-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
     }
-    .user-details {
+
+    .notif-dropdown {
+      position: absolute;
+      right: 0;
+      top: 50px;
+      width: 360px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      z-index: 100;
+      overflow: hidden;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .notif-header {
       display: flex;
-      flex-direction: column;
-      font-size: 0.75rem;
-      color: var(--user-badge-text);
-    }
-    .user-name {
-      font-weight: 600;
-      color: var(--logo-text-main);
-    }
-    .logout-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      cursor: pointer;
-      display: flex;
+      justify-content: space-between;
       align-items: center;
-      padding: 0.25rem;
-      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .logout-btn:hover {
-      background: rgba(239, 68, 68, 0.1);
+    .notif-header h3 { font-size: 0.95rem; font-weight: 700; color: #f8fafc; margin: 0; }
+    .btn-text { background: none; border: none; color: #818cf8; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+    .btn-text:hover { text-decoration: underline; }
+
+    .notif-list { max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; }
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .notif-item:hover { background: rgba(255, 255, 255, 0.04); }
+    .notif-item.unread { background: rgba(99, 102, 241, 0.08); }
+    .notif-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 0.35rem; flex-shrink: 0; }
+    .notif-dot.warning { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+    .notif-dot.critical { background: #f43f5e; box-shadow: 0 0 6px #f43f5e; }
+    .notif-dot.success { background: #34d399; box-shadow: 0 0 6px #34d399; }
+    .notif-dot.info { background: #60a5fa; box-shadow: 0 0 6px #60a5fa; }
+
+    .notif-content { display: flex; flex-direction: column; gap: 0.2rem; }
+    .notif-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; }
+    .notif-msg { font-size: 0.78rem; color: #94a3b8; line-height: 1.3; }
+    .notif-time { font-size: 0.7rem; color: #64748b; margin-top: 0.2rem; }
+
+    .ai-item {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      color: #f472b6 !important;
     }
 
     .page-content {
@@ -277,13 +391,27 @@ import { currentUserSignal } from '../../core/state/global.signals';
 export class DashboardComponent {
   protected authService = inject(AuthService);
   protected themeService = inject(ThemeService);
+  protected notifService = inject(NotificationService);
   private router = inject(Router);
 
   protected currentUserSignal = currentUserSignal;
   protected isSidebarCollapsed = signal<boolean>(false);
+  protected isNotifOpen = signal<boolean>(false);
 
   protected toggleSidebar(): void {
     this.isSidebarCollapsed.update((v) => !v);
+  }
+
+  protected toggleNotifications(): void {
+    this.isNotifOpen.update((v) => !v);
+  }
+
+  protected onNotifClick(item: any): void {
+    this.notifService.markAsRead(item.id);
+    if (item.actionUrl) {
+      this.router.navigate([item.actionUrl]);
+      this.isNotifOpen.set(false);
+    }
   }
 
   protected onLogout(): void {
