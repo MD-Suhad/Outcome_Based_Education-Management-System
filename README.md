@@ -24,6 +24,7 @@ This project contains extensive documentation organized by topic. Choose what yo
 | [Database Schema Blueprint](./docs/DATABASE_SCHEMA_BLUEPRINT.md) | ER Diagrams, multi-tenant DB structure, JSONB rubrics, Outbox table | Database Engineers, Backend Devs |
 | [System Architecture](./docs/Architecture.md) | Microservices topology, sequence diagrams, Gateway & Eureka design | Backend Developers, Architects |
 | [Frontend Architecture](./docs/FrontendArchitecture.md) | Angular 19+ app structure, Signals, state management, toast engine | Frontend Developers |
+| [AI Implementation Guide](./docs/AI_IMPLEMENTATION_GUIDE.md) | Comprehensive guide for Spring AI, DeepSeek/Gemini integration, Bloom's Taxonomy & CO-PO AI assistant | All Developers, Architects |
 | [Backend README](./backend/README.md) | All backend services overview and setup | Backend Developers |
 | [Optimization Guide](./OPTIMIZATION_AND_BEST_PRACTICES.md) | Performance tuning, security, caching strategies | All Developers |
 
@@ -59,6 +60,7 @@ This project contains extensive documentation organized by topic. Choose what yo
 
 ### 5. 🤖 AI Curriculum & CO-PO Alignment Assistant
 * **Location:** [frontend/src/app/features/ai-assistant](file:///f:/Shohaib/Project/Outcome_Based_Education-Management-System/frontend/src/app/features/ai-assistant/ai-assistant.component.ts)
+* **Documentation:** [AI Implementation Guide](./docs/AI_IMPLEMENTATION_GUIDE.md)
 * **Function:** LLM-powered syllabus analyzer that extracts CLOs, classifies Bloom's Taxonomy, and recommends PLO mapping weights with rationale.
 
 ### 6. 🔔 Real-Time Notification Center & Toast Engine

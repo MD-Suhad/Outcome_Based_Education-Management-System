@@ -1,16 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AiAssistantService, CoPoRecommendation } from '../../core/services/ai-assistant.service';
 
-export interface AiMappingSuggestion {
-  coCode: string;
-  coStatement: string;
-  recommendedPlo: string;
-  recommendedWeight: number; // 1, 2, 3
-  bloomsTaxonomy: string;
-  confidenceScore: number; // e.g. 94%
-  rationale: string;
-}
+export type AiMappingSuggestion = CoPoRecommendation;
 
 @Component({
   selector: 'app-ai-assistant',
@@ -23,7 +16,7 @@ export interface AiMappingSuggestion {
           <h1 class="header-title">🤖 AI Curriculum CO-PO Alignment Assistant</h1>
           <p class="header-subtitle">LLM-Powered Outcome Analysis, Bloom's Taxonomy Classification & Mapping Recommendations</p>
         </div>
-        <span class="ai-badge">Powered by DeepSeek / Gemini AI</span>
+        <span class="ai-badge">Powered by Spring AI / DeepSeek / Gemini</span>
       </div>
 
       <!-- Syllabus Analysis Input Box -->
@@ -146,6 +139,8 @@ export interface AiMappingSuggestion {
   `]
 })
 export class AiAssistantComponent {
+  private aiService = inject(AiAssistantService);
+
   protected syllabusInput = 'Students will analyze software requirements, design modern microservices architectures using Spring Boot, and evaluate database concurrency locks, MVCC transactions, and high availability system performance.';
   protected isAnalyzing = signal<boolean>(false);
 
@@ -180,13 +175,24 @@ export class AiAssistantComponent {
   ]);
 
   protected analyzeSyllabus(): void {
+    if (!this.syllabusInput.trim()) return;
+
     this.isAnalyzing.set(true);
-    setTimeout(() => {
-      this.isAnalyzing.set(false);
-    }, 1200);
+    this.aiService.analyzeSyllabus({ syllabusText: this.syllabusInput }).subscribe({
+      next: (response) => {
+        if (response && response.suggestions && response.suggestions.length > 0) {
+          this.suggestions.set(response.suggestions);
+        }
+        this.isAnalyzing.set(false);
+      },
+      error: () => {
+        this.isAnalyzing.set(false);
+      }
+    });
   }
 
   protected acceptSuggestion(item: AiMappingSuggestion): void {
     alert(`Suggestion for ${item.coCode} accepted and applied to CO-PO Matrix!`);
   }
 }
+
